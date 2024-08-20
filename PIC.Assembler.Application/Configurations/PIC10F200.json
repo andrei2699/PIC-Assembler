@@ -1,0 +1,33 @@
+{
+  "bits": 8,
+  "opcode": 12,
+  "instructions": [
+    {
+      "name": "ADDWF",
+      "type": "binary",
+      "parameters": [
+        {
+          "name": "f",
+          "min": 0,
+          "max": 31
+        },
+        {
+          "name": "d",
+          "min": 0,
+          "max": 1
+        }
+      ],
+      "opcode": "0001 11df ffff"
+    },
+    {
+      "name": "NOP",
+      "type": "noarg",
+      "opcode": "0000 0000 0000"
+    },
+    {
+      "name": "CLRWDT",
+      "type": "noarg",
+      "opcode": "0000 0000 0100"
+    }
+  ]
+}
