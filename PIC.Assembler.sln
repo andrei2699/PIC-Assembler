@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIC-Assembler", "PIC-Assembler\PIC-Assembler.csproj", "{4CC4935E-EADA-4388-98AF-83E0FC98B677}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIC.Assembler.Application", "PIC.Assembler.Application\PIC.Assembler.Application.csproj", "{BCFAAD44-A2F3-44A9-A508-DF97CCA27665}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{4CC4935E-EADA-4388-98AF-83E0FC98B677}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4CC4935E-EADA-4388-98AF-83E0FC98B677}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4CC4935E-EADA-4388-98AF-83E0FC98B677}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCFAAD44-A2F3-44A9-A508-DF97CCA27665}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCFAAD44-A2F3-44A9-A508-DF97CCA27665}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCFAAD44-A2F3-44A9-A508-DF97CCA27665}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCFAAD44-A2F3-44A9-A508-DF97CCA27665}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
