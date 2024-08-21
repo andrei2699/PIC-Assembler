@@ -5,7 +5,7 @@ namespace PIC.Assembler.Application.Domain.Service;
 
 public class AssembleService : IAssembleUseCase
 {
-    public List<BinaryCodeInstruction> Assemble(AssembleCommand command)
+    public List<HexRecord> Assemble(AssembleCommand command)
     {
         throw new NotImplementedException();
     }
