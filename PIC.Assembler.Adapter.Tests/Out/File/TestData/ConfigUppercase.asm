@@ -1,0 +1,1 @@
+__CONFIG _WDT_OFF

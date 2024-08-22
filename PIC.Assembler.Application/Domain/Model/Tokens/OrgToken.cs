@@ -1,3 +1,3 @@
 namespace PIC.Assembler.Application.Domain.Model.Tokens;
 
-public record IncludeToken : Token;
+public record OrgToken : Token;

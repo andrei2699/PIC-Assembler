@@ -1,0 +1,1 @@
+#define variable 'a'

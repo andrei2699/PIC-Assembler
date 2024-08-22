@@ -29,7 +29,8 @@ public class FileParserAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/OnlyEnd.asm")]
+    [FileDataPath("TestData/End.asm")]
+    [FileDataPath("TestData/EndUppercase.asm")]
     public void GivenEnd_ShouldReturnListWithEndToken(string filePath)
     {
         var tokens = _fileParserAdapter.Parse(filePath);
@@ -60,10 +61,51 @@ public class FileParserAdapterTests
     [Theory]
     [FileDataPath("TestData/Values/ConstantEquateBinaryValue.asm")]
     [FileDataPath("TestData/Values/ConstantEquateBinaryValueUppercase.asm")]
-    public void GivenConstantEquateWithBinaryValue_ShouldReturnList0With3Tokens(string filePath)
+    public void GivenConstantEquateWithBinaryValue_ShouldReturnListWith3Tokens(string filePath)
     {
         var tokens = _fileParserAdapter.Parse(filePath);
 
         tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new BinaryValueToken(5));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/DefineCharacterValue.asm")]
+    [FileDataPath("TestData/DefineCharacterValueUppercase.asm")]
+    public void GivenDefineWithCharacterValue_ShouldReturnListWith3Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new DefineToken(), new NameConstantToken("VARIABLE"), new CharacterValueToken('a'));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Include.asm")]
+    [FileDataPath("TestData/IncludeUppercase.asm")]
+    public void GivenInclude_ShouldReturnListWith2Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new IncludeToken(), new StringValueToken("file.inc"));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Org.asm")]
+    [FileDataPath("TestData/OrgUppercase.asm")]
+    public void GivenOrg_ShouldReturnListWith2Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new OrgToken(), new HexadecimalValueToken(0));
+    }
+
+
+    [Theory]
+    [FileDataPath("TestData/Config.asm")]
+    [FileDataPath("TestData/ConfigUppercase.asm")]
+    public void GivenConfig_ShouldReturnListWith2Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new ConfigToken(), new NameConstantToken("_WDT_OFF"));
     }
 }
