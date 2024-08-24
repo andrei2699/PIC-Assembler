@@ -1,6 +1,7 @@
 using FluentAssertions;
 using PIC.Assembler.Adapter.Out.File;
 using PIC.Assembler.Application.Domain.Model.Tokens;
+using PIC.Assembler.Application.Domain.Model.Tokens.Operation;
 using PIC.Assembler.Application.Domain.Model.Tokens.Values;
 
 namespace PIC.Assembler.Adapter.Tests.Out.File;
@@ -98,7 +99,6 @@ public class FileParserAdapterTests
         tokens.Should().Equal(new OrgToken(), new HexadecimalValueToken(0));
     }
 
-
     [Theory]
     [FileDataPath("TestData/Config.asm")]
     [FileDataPath("TestData/ConfigUppercase.asm")]
@@ -107,5 +107,103 @@ public class FileParserAdapterTests
         var tokens = _fileParserAdapter.Parse(filePath);
 
         tokens.Should().Equal(new ConfigToken(), new NameConstantToken("_WDT_OFF"));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Label.asm")]
+    [FileDataPath("TestData/LabelUppercase.asm")]
+    public void GivenLabel_ShouldReturnListWith1Token(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal( new LabelToken("LABEL"));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Operation/LeftShiftExpression.asm")]
+    [FileDataPath("TestData/Operation/LeftShiftExpressionCompact.asm")]
+    public void GivenLeftShiftExpression_ShouldReturnListWith5Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(1),
+            new LeftShiftToken(), new DecimalValueToken(3));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Operation/RightShiftExpression.asm")]
+    [FileDataPath("TestData/Operation/RightShiftExpressionCompact.asm")]
+    public void GivenRightShiftExpression_ShouldReturnListWith5Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(1),
+            new RightShiftToken(), new DecimalValueToken(3));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Operation/ConstantEquateWithParenthesis.asm")]
+    [FileDataPath("TestData/Operation/ConstantEquateWithParenthesisCompact.asm")]
+    public void GivenConstantEquateWithParenthesis_ShouldReturnListWith5Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new OpenParenthesisToken(),
+            new DecimalValueToken(2), new ClosedParenthesisToken());
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Operation/ConstantEquateWithAddition.asm")]
+    [FileDataPath("TestData/Operation/ConstantEquateWithAdditionCompact.asm")]
+    public void GivenConstantEquateWithAddition_ShouldReturnListWith5Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
+            new PlusToken(), new DecimalValueToken(4));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Operation/ConstantEquateWithSubtraction.asm")]
+    [FileDataPath("TestData/Operation/ConstantEquateWithSubtractionCompact.asm")]
+    public void GivenConstantEquateWithSubtraction_ShouldReturnListWith5Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
+            new MinusToken(), new DecimalValueToken(4));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Operation/ConstantEquateWithAndBitwise.asm")]
+    [FileDataPath("TestData/Operation/ConstantEquateWithAndBitwiseCompact.asm")]
+    public void GivenConstantEquateWithAndBitwise_ShouldReturnListWith5Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
+            new AmpersandToken(), new DecimalValueToken(4));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Operation/ConstantEquateWithOrBitwise.asm")]
+    [FileDataPath("TestData/Operation/ConstantEquateWithOrBitwiseCompact.asm")]
+    public void GivenConstantEquateWithOrBitwise_ShouldReturnListWith5Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
+            new BarToken(), new DecimalValueToken(4));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Operation/GotoWithNextAddress.asm")]
+    [FileDataPath("TestData/Operation/GotoWithNextAddressCompact.asm")]
+    public void GivenGotoWithNextAddress_ShouldReturnListWith4Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new NameConstantToken("GOTO"), new DollarToken(), new PlusToken(),
+            new DecimalValueToken(1));
     }
 }
