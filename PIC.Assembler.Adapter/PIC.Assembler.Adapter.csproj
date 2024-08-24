@@ -9,6 +9,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PIC.Assembler.Application\PIC.Assembler.Application.csproj" />
+      <ProjectReference Include="..\PIC.Assembler.Common\PIC.Assembler.Common.csproj" />
     </ItemGroup>
 
 </Project>

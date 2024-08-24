@@ -116,7 +116,7 @@ public class FileParserAdapterTests
     {
         var tokens = _fileParserAdapter.Parse(filePath);
 
-        tokens.Should().Equal( new LabelToken("LABEL"));
+        tokens.Should().Equal(new LabelToken("LABEL"));
     }
 
     [Theory]
@@ -161,6 +161,19 @@ public class FileParserAdapterTests
 
         tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
             new PlusToken(), new DecimalValueToken(4));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Operation/ConstantEquateWithAdditionWithOtherConstant.asm")]
+    [FileDataPath("TestData/Operation/ConstantEquateWithAdditionWithOtherConstantCompact.asm")]
+    public void GivenConstantEquateWithAdditionWithOtherConstant_ShouldReturnListWith10Tokens(string filePath)
+    {
+        var tokens = _fileParserAdapter.Parse(filePath);
+
+        tokens.Should().Equal(new NameConstantToken("VARIABLE1"), new EquateToken(), new DecimalValueToken(5),
+            new NameConstantToken("VARIABLE2"), new EquateToken(), new OpenParenthesisToken(),
+            new NameConstantToken("VARIABLE1"), new PlusToken(), new DecimalValueToken(2),
+            new ClosedParenthesisToken());
     }
 
     [Theory]

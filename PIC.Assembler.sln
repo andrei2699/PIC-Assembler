@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIC.Assembler.Application.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIC.Assembler.Adapter", "PIC.Assembler.Adapter\PIC.Assembler.Adapter.csproj", "{C42B368B-2F47-4A73-8A11-9424A90931D5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PIC.Assembler.Common", "PIC.Assembler.Common\PIC.Assembler.Common.csproj", "{C90C1E56-143C-46E0-800E-A384213C19D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{C42B368B-2F47-4A73-8A11-9424A90931D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C42B368B-2F47-4A73-8A11-9424A90931D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C42B368B-2F47-4A73-8A11-9424A90931D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C90C1E56-143C-46E0-800E-A384213C19D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C90C1E56-143C-46E0-800E-A384213C19D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C90C1E56-143C-46E0-800E-A384213C19D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C90C1E56-143C-46E0-800E-A384213C19D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -3,6 +3,7 @@ using PIC.Assembler.Application.Domain.Model.Tokens;
 using PIC.Assembler.Application.Domain.Model.Tokens.Operation;
 using PIC.Assembler.Application.Domain.Model.Tokens.Values;
 using PIC.Assembler.Application.Port.Out;
+using PIC.Assembler.Common;
 
 namespace PIC.Assembler.Adapter.Out.File;
 
@@ -15,176 +16,6 @@ public class FileParserAdapter : IParser
         return GetCleanedLines(filepath)
             .SelectMany(line => line.Split(" ").Select(ParseTokens))
             .SelectMany(tokenList => tokenList);
-    }
-
-    private static IEnumerable<Token> ParseTokens(string token)
-    {
-        switch (token)
-        {
-            case "end":
-            case "END":
-                yield return new EndToken();
-                break;
-            case "equ":
-            case "EQU":
-                yield return new EquateToken();
-                break;
-            case "#include":
-            case "#INCLUDE":
-                yield return new IncludeToken();
-                break;
-            case "org":
-            case "ORG":
-                yield return new OrgToken();
-                break;
-            case "#define":
-            case "#DEFINE":
-                yield return new DefineToken();
-                break;
-            case "__config":
-            case "__CONFIG":
-                yield return new ConfigToken();
-                break;
-            case "(":
-                yield return new OpenParenthesisToken();
-                break;
-            case ")":
-                yield return new ClosedParenthesisToken();
-                break;
-            case "$":
-                yield return new DollarToken();
-                break;
-            case "+":
-                yield return new PlusToken();
-                break;
-            case "-":
-                yield return new MinusToken();
-                break;
-            case ">>":
-                yield return new RightShiftToken();
-                break;
-            case "<<":
-                yield return new LeftShiftToken();
-                break;
-            case "&":
-                yield return new AmpersandToken();
-                break;
-            case "|":
-                yield return new BarToken();
-                break;
-            case var _ when IsLabel(token):
-                yield return new LabelToken(token.TrimEnd(':').ToUpperInvariant());
-                break;
-            case var _ when IsStringValueToken(token):
-                yield return new StringValueToken(token.Trim('"'));
-                break;
-            case var _ when IsCharacterValueToken(token):
-                yield return new CharacterValueToken(token.Trim('\'')[0]);
-                break;
-            case var _ when IsDecimalValueToken(token, out var number):
-                yield return new DecimalValueToken(number);
-                break;
-            case var _ when IsHexadecimalValueToken(token):
-                yield return new HexadecimalValueToken(Convert.ToInt32(token, 16));
-                break;
-            case var _ when IsBinaryValueToken(token):
-                yield return new BinaryValueToken(Convert.ToInt32(token[..^1], 2));
-                break;
-            default:
-                foreach (var individualCharacter in ParseIndividualCharacters(token))
-                {
-                    yield return individualCharacter;
-                }
-
-                break;
-        }
-    }
-
-    private static IEnumerable<Token> ParseIndividualCharacters(string token)
-    {
-        var builder = new StringBuilder();
-
-        foreach (var @char in token)
-        {
-            switch (@char)
-            {
-                case '(':
-                case ')':
-                case '$':
-                case '+':
-                case '-':
-                case '&':
-                case '|':
-                    if (builder.Length > 0)
-                    {
-                        foreach (var other in ParseTokens(builder.ToString()))
-                        {
-                            yield return other;
-                        }
-                    }
-
-                    foreach (var other in ParseTokens(@char.ToString()))
-                    {
-                        yield return other;
-                    }
-
-                    builder = builder.Clear();
-
-                    break;
-
-                default:
-                    builder = builder.Append(@char);
-                    var parsedToken = builder.ToString();
-
-                    switch (parsedToken)
-                    {
-                        case ">>":
-                            builder = builder.Clear();
-                            yield return new RightShiftToken();
-                            break;
-                        case "<<":
-                            builder = builder.Clear();
-                            yield return new LeftShiftToken();
-                            break;
-                        case var _ when IsStringValueToken(parsedToken):
-                            builder = builder.Clear();
-                            yield return new StringValueToken(parsedToken.Trim('"'));
-                            break;
-                        case var _ when IsCharacterValueToken(parsedToken):
-                            builder = builder.Clear();
-                            yield return new CharacterValueToken(parsedToken.Trim('\'')[0]);
-                            break;
-                        case var _ when IsDecimalValueToken(parsedToken, out var number):
-                            builder = builder.Clear();
-                            yield return new DecimalValueToken(number);
-                            break;
-                        case var _ when IsHexadecimalValueToken(parsedToken):
-                            builder = builder.Clear();
-                            yield return new HexadecimalValueToken(Convert.ToInt32(parsedToken, 16));
-                            break;
-                        case var _ when IsBinaryValueToken(parsedToken):
-                            builder = builder.Clear();
-                            yield return new BinaryValueToken(Convert.ToInt32(parsedToken[..^1], 2));
-                            break;
-                    }
-
-                    break;
-            }
-        }
-
-        if (builder.Length > 0)
-        {
-            var parsedToken = builder.ToString();
-            yield return parsedToken switch
-            {
-                _ when IsStringValueToken(parsedToken) => new StringValueToken(parsedToken.Trim('"')),
-                _ when IsCharacterValueToken(parsedToken) => new CharacterValueToken(parsedToken.Trim('\'')[0]),
-                _ when IsDecimalValueToken(parsedToken, out var number) => new DecimalValueToken(number),
-                _ when IsHexadecimalValueToken(parsedToken) => new HexadecimalValueToken(Convert.ToInt32(parsedToken, 16)),
-                _ when IsBinaryValueToken(parsedToken) => new BinaryValueToken(Convert.ToInt32(parsedToken[..^1], 2)),
-                _ => new NameConstantToken(parsedToken.ToUpperInvariant())
-            };
-        }
     }
 
     private static IEnumerable<string> GetCleanedLines(string filepath)
@@ -202,6 +33,142 @@ public class FileParserAdapter : IParser
         var indexOf = line.IndexOf(CommentLiteral, StringComparison.Ordinal);
 
         return indexOf >= 0 ? line[..indexOf] : line;
+    }
+
+    private static IEnumerable<Token> ParseTokens(string token)
+    {
+        var keywordToken = ParseKeywordToken(token);
+        if (keywordToken.HasValue())
+        {
+            yield return keywordToken.Get();
+            yield break;
+        }
+
+        var oneOreMultipleCharacterToken = ParseOneOreMultipleCharacterToken(token);
+        if (oneOreMultipleCharacterToken.HasValue())
+        {
+            yield return oneOreMultipleCharacterToken.Get();
+            yield break;
+        }
+
+        foreach (var individualCharacter in ParseIndividualCharacters(token))
+        {
+            yield return individualCharacter;
+        }
+    }
+
+    private static Option<Token> ParseKeywordToken(string token)
+    {
+        return token switch
+        {
+            "end" or "END" => Option<Token>.Some(new EndToken()),
+            "equ" or "EQU" => Option<Token>.Some(new EquateToken()),
+            "#include" or "#INCLUDE" => Option<Token>.Some(new IncludeToken()),
+            "org" or "ORG" => Option<Token>.Some(new OrgToken()),
+            "#define" or "#DEFINE" => Option<Token>.Some(new DefineToken()),
+            "__config" or "__CONFIG" => Option<Token>.Some(new ConfigToken()),
+            _ => Option<Token>.None()
+        };
+    }
+
+    private static Option<Token> ParseOneOreMultipleCharacterToken(string parsedToken)
+    {
+        return ParseOneCharacterToken(parsedToken)
+            .OrElse(ParseMultipleCharacterToken(parsedToken))
+            .OrElse(Option<Token>.None());
+    }
+
+    private static Option<Token> ParseOneCharacterToken(string token)
+    {
+        return token switch
+        {
+            "(" => Option<Token>.Some(new OpenParenthesisToken()),
+            ")" => Option<Token>.Some(new ClosedParenthesisToken()),
+            "$" => Option<Token>.Some(new DollarToken()),
+            "+" => Option<Token>.Some(new PlusToken()),
+            "-" => Option<Token>.Some(new MinusToken()),
+            "&" => Option<Token>.Some(new AmpersandToken()),
+            "|" => Option<Token>.Some(new BarToken()),
+            _ => Option<Token>.None()
+        };
+    }
+
+    private static Option<Token> ParseMultipleCharacterToken(string token)
+    {
+        return token switch
+        {
+            ">>" => Option<Token>.Some(new RightShiftToken()),
+            "<<" => Option<Token>.Some(new LeftShiftToken()),
+            _ when IsLabel(token) => Option<Token>.Some(new LabelToken(token.TrimEnd(':').ToUpperInvariant())),
+            _ when IsStringValueToken(token) => Option<Token>.Some(new StringValueToken(token.Trim('"'))),
+            _ when IsCharacterValueToken(token) => Option<Token>.Some(new CharacterValueToken(token.Trim('\'')[0])),
+            _ when IsDecimalValueToken(token, out var number) => Option<Token>.Some(new DecimalValueToken(number)),
+            _ when IsHexadecimalValueToken(token) => Option<Token>.Some(
+                new HexadecimalValueToken(Convert.ToInt32(token, 16))),
+            _ when IsBinaryValueToken(token) => Option<Token>.Some(
+                new BinaryValueToken(Convert.ToInt32(token[..^1], 2))),
+            _ => Option<Token>.None()
+        };
+    }
+
+    private static IEnumerable<Token> ParseIndividualCharacters(string token)
+    {
+        var builder = new StringBuilder();
+
+        foreach (var @char in token)
+        {
+            var individualCharacterTokenParsed = false;
+            foreach (var individualCharacterToken in ParseIndividualCharacters(@char.ToString(), builder))
+            {
+                individualCharacterTokenParsed = true;
+                yield return individualCharacterToken;
+            }
+
+            if (individualCharacterTokenParsed)
+            {
+                builder = builder.Clear();
+                continue;
+            }
+
+            builder = builder.Append(@char);
+
+            var multipleCharacterToken = ParseMultipleCharacterToken(builder.ToString());
+            if (!multipleCharacterToken.HasValue())
+            {
+                continue;
+            }
+
+            builder = builder.Clear();
+            yield return multipleCharacterToken.Get();
+        }
+
+        if (builder.Length <= 0)
+        {
+            yield break;
+        }
+
+        var parsedToken = builder.ToString();
+        yield return ParseOneOreMultipleCharacterToken(parsedToken)
+            .OrElseGet(new NameConstantToken(parsedToken.ToUpperInvariant()));
+    }
+
+    private static IEnumerable<Token> ParseIndividualCharacters(string token, StringBuilder builder)
+    {
+        var oneCharacterToken = ParseOneCharacterToken(token);
+        if (!oneCharacterToken.HasValue())
+        {
+            yield break;
+        }
+
+        if (builder.Length > 0)
+        {
+            foreach (var other in ParseTokens(builder.ToString()))
+            {
+                yield return other;
+            }
+        }
+
+        yield return oneCharacterToken.Get();
     }
 
     private static bool IsBinaryValueToken(string token)
