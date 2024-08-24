@@ -4,5 +4,5 @@ namespace PIC.Assembler.Application.Port.Out;
 
 public interface IParser
 {
-    IEnumerable<Token> Parse(string filepath);
+    IEnumerable<TokenList> Parse(string filepath);
 }

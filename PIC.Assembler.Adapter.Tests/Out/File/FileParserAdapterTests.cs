@@ -24,7 +24,7 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/EmptyLines/EmptyWithNewLinesAndComments.asm")]
     public void GivenEmptyFile_ShouldReturnEmptyList(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
         tokens.Should().BeEmpty();
     }
@@ -34,9 +34,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/EndUppercase.asm")]
     public void GivenEnd_ShouldReturnListWithEndToken(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new EndToken());
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new EndToken());
     }
 
     [Theory]
@@ -44,9 +45,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Values/ConstantEquateDecimalValueUppercase.asm")]
     public void GivenConstantEquateWithDecimalValue_ShouldReturnListWith3Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2));
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2));
     }
 
     [Theory]
@@ -54,9 +56,11 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Values/ConstantEquateHexadecimalValueUppercase.asm")]
     public void GivenConstantEquateWithHexadecimalValue_ShouldReturnListWith3Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new HexadecimalValueToken(10));
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should()
+            .Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new HexadecimalValueToken(10));
     }
 
     [Theory]
@@ -64,9 +68,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Values/ConstantEquateBinaryValueUppercase.asm")]
     public void GivenConstantEquateWithBinaryValue_ShouldReturnListWith3Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new BinaryValueToken(5));
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new BinaryValueToken(5));
     }
 
     [Theory]
@@ -74,9 +79,11 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/DefineCharacterValueUppercase.asm")]
     public void GivenDefineWithCharacterValue_ShouldReturnListWith3Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new DefineToken(), new NameConstantToken("VARIABLE"), new CharacterValueToken('a'));
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should()
+            .Equal(new DefineToken(), new NameConstantToken("VARIABLE"), new CharacterValueToken('a'));
     }
 
     [Theory]
@@ -84,9 +91,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/IncludeUppercase.asm")]
     public void GivenInclude_ShouldReturnListWith2Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new IncludeToken(), new StringValueToken("file.inc"));
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new IncludeToken(), new StringValueToken("file.inc"));
     }
 
     [Theory]
@@ -94,9 +102,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/OrgUppercase.asm")]
     public void GivenOrg_ShouldReturnListWith2Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new OrgToken(), new HexadecimalValueToken(0));
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new OrgToken(), new HexadecimalValueToken(0));
     }
 
     [Theory]
@@ -104,9 +113,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/ConfigUppercase.asm")]
     public void GivenConfig_ShouldReturnListWith2Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new ConfigToken(), new NameConstantToken("_WDT_OFF"));
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new ConfigToken(), new NameConstantToken("_WDT_OFF"));
     }
 
     [Theory]
@@ -114,9 +124,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/LabelUppercase.asm")]
     public void GivenLabel_ShouldReturnListWith1Token(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new LabelToken("LABEL"));
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new LabelToken("LABEL"));
     }
 
     [Theory]
@@ -124,9 +135,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Operation/LeftShiftExpressionCompact.asm")]
     public void GivenLeftShiftExpression_ShouldReturnListWith5Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(1),
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(1),
             new LeftShiftToken(), new DecimalValueToken(3));
     }
 
@@ -135,9 +147,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Operation/RightShiftExpressionCompact.asm")]
     public void GivenRightShiftExpression_ShouldReturnListWith5Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(1),
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(1),
             new RightShiftToken(), new DecimalValueToken(3));
     }
 
@@ -146,10 +159,11 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Operation/ConstantEquateWithParenthesisCompact.asm")]
     public void GivenConstantEquateWithParenthesis_ShouldReturnListWith5Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new OpenParenthesisToken(),
-            new DecimalValueToken(2), new ClosedParenthesisToken());
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(),
+            new OpenParenthesisToken(), new DecimalValueToken(2), new ClosedParenthesisToken());
     }
 
     [Theory]
@@ -157,9 +171,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Operation/ConstantEquateWithAdditionCompact.asm")]
     public void GivenConstantEquateWithAddition_ShouldReturnListWith5Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
             new PlusToken(), new DecimalValueToken(4));
     }
 
@@ -168,12 +183,15 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Operation/ConstantEquateWithAdditionWithOtherConstantCompact.asm")]
     public void GivenConstantEquateWithAdditionWithOtherConstant_ShouldReturnListWith10Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("VARIABLE1"), new EquateToken(), new DecimalValueToken(5),
-            new NameConstantToken("VARIABLE2"), new EquateToken(), new OpenParenthesisToken(),
-            new NameConstantToken("VARIABLE1"), new PlusToken(), new DecimalValueToken(2),
-            new ClosedParenthesisToken());
+        tokens.Should().HaveCount(2);
+        tokens[0].Tokens.Should()
+            .Equal(new NameConstantToken("VARIABLE1"), new EquateToken(), new DecimalValueToken(5));
+        tokens[1].Tokens.Should()
+            .Equal(new NameConstantToken("VARIABLE2"), new EquateToken(), new OpenParenthesisToken(),
+                new NameConstantToken("VARIABLE1"), new PlusToken(), new DecimalValueToken(2),
+                new ClosedParenthesisToken());
     }
 
     [Theory]
@@ -181,9 +199,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Operation/ConstantEquateWithSubtractionCompact.asm")]
     public void GivenConstantEquateWithSubtraction_ShouldReturnListWith5Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
             new MinusToken(), new DecimalValueToken(4));
     }
 
@@ -192,9 +211,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Operation/ConstantEquateWithAndBitwiseCompact.asm")]
     public void GivenConstantEquateWithAndBitwise_ShouldReturnListWith5Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
             new AmpersandToken(), new DecimalValueToken(4));
     }
 
@@ -203,9 +223,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Operation/ConstantEquateWithOrBitwiseCompact.asm")]
     public void GivenConstantEquateWithOrBitwise_ShouldReturnListWith5Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
             new BarToken(), new DecimalValueToken(4));
     }
 
@@ -214,9 +235,10 @@ public class FileParserAdapterTests
     [FileDataPath("TestData/Operation/GotoWithNextAddressCompact.asm")]
     public void GivenGotoWithNextAddress_ShouldReturnListWith4Tokens(string filePath)
     {
-        var tokens = _fileParserAdapter.Parse(filePath);
+        var tokens = _fileParserAdapter.Parse(filePath).ToList();
 
-        tokens.Should().Equal(new NameConstantToken("GOTO"), new DollarToken(), new PlusToken(),
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("GOTO"), new DollarToken(), new PlusToken(),
             new DecimalValueToken(1));
     }
 }

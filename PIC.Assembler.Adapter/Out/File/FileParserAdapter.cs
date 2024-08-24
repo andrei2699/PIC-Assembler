@@ -11,11 +11,12 @@ public class FileParserAdapter : IParser
 {
     private const string CommentLiteral = ";";
 
-    public IEnumerable<Token> Parse(string filepath)
+    public IEnumerable<TokenList> Parse(string filepath)
     {
         return GetCleanedLines(filepath)
-            .SelectMany(line => line.Split(" ").Select(ParseTokens))
-            .SelectMany(tokenList => tokenList);
+            .Select(line => new TokenList(line.Split(" ")
+                .Select(ParseTokens)
+                .SelectMany(tokenList => tokenList)));
     }
 
     private static IEnumerable<string> GetCleanedLines(string filepath)
