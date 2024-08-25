@@ -14,27 +14,42 @@ public class ParserService(ITokenizer tokenizer) : IParser
 
     private IEnumerable<Instruction> Parse(TokenList tokenList)
     {
-        for (var i = 0; i < tokenList.Tokens.Count; i++)
+        if (tokenList.Tokens.Count == 0)
         {
-            switch (tokenList.Tokens[i])
-            {
-                case EndToken:
-                    yield return new EndInstruction();
-                    break;
-                case OrgToken:
-                    yield return tokenList.GetTokenOption<NumberValueToken>(i + 1)
-                        .Map(t => new OrgInstruction(t.Value))
-                        .OrElseThrow(new InstructionParseException("org was missing number value"));
-                    break;
-                case IncludeToken:
-                {
-                    foreach (var instruction in ParseIncludeInstruction(tokenList, i + 1))
-                    {
-                        yield return instruction;
-                    }
+            yield break;
+        }
 
-                    break;
+        switch (tokenList.Tokens[0])
+        {
+            case EndToken:
+                yield return new EndInstruction();
+                break;
+            case OrgToken:
+                yield return tokenList.GetTokenOption<NumberValueToken>(1)
+                    .Map(t => new OrgInstruction(t.Value))
+                    .OrElseThrow(new InstructionParseException("org was missing number value"));
+                break;
+            case LabelToken labelToken:
+            {
+                foreach (var instruction in ParseLabelInstruction(tokenList, 1, labelToken))
+                {
+                    yield return instruction;
                 }
+
+                break;
+            }
+            case IncludeToken:
+            {
+                foreach (var instruction in ParseIncludeInstruction(tokenList, 1))
+                {
+                    yield return instruction;
+                }
+
+                break;
+            }
+            default:
+            {
+                throw new InstructionParseException($"{tokenList.Tokens[0]} is not a valid instruction");
             }
         }
     }
@@ -53,5 +68,16 @@ public class ParserService(ITokenizer tokenizer) : IParser
         {
             yield return instruction;
         }
+    }
+
+    private static IEnumerable<Instruction> ParseLabelInstruction(TokenList tokenList, int index, LabelToken labelToken)
+    {
+        var tokenOption = tokenList.GetTokenOption<Token>(index);
+        if (tokenOption.HasValue())
+        {
+            throw new InstructionParseException("label instruction must be on separate line");
+        }
+
+        yield return new LabelInstruction(labelToken.Name);
     }
 }

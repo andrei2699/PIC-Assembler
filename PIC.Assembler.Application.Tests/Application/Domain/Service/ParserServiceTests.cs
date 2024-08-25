@@ -2,6 +2,7 @@ using FluentAssertions;
 using Moq;
 using PIC.Assembler.Application.Domain.Model.Instructions;
 using PIC.Assembler.Application.Domain.Model.Tokens;
+using PIC.Assembler.Application.Domain.Model.Tokens.Operation;
 using PIC.Assembler.Application.Domain.Model.Tokens.Values;
 using PIC.Assembler.Application.Domain.Service;
 using PIC.Assembler.Application.Port.Out;
@@ -18,6 +19,8 @@ public class ParserServiceTests
         _parserService = new ParserService(_tokenizerMock.Object);
     }
 
+    #region NoTokens
+
     [Fact]
     public void GivenEmptyTokenList_ThenReturnNoElements()
     {
@@ -33,6 +36,38 @@ public class ParserServiceTests
 
         instructions.Should().BeEmpty();
     }
+
+    #endregion
+
+    #region Invalid Token Combinations
+
+    [Theory]
+    [MemberData(nameof(GetInvalidTokenAtBeginning))]
+    public void GivenInvalidTokenAtBeginningOfList_ThenThrowInstructionParseException(Token token)
+    {
+        var func = () => _parserService.Parse(new List<TokenList> { new([token]) }).ToList();
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    public static IEnumerable<object[]> GetInvalidTokenAtBeginning()
+    {
+        yield return [new CharacterValueToken('c')];
+        yield return [new NumberValueToken(2)];
+        yield return [new StringValueToken("text")];
+        yield return [new AmpersandToken()];
+        yield return [new BarToken()];
+        yield return [new OpenParenthesisToken()];
+        yield return [new ClosedParenthesisToken()];
+        yield return [new DollarToken()];
+        yield return [new LeftShiftToken()];
+        yield return [new RightShiftToken()];
+        yield return [new MinusToken()];
+        yield return [new PlusToken()];
+        yield return [new EquateToken()];
+    }
+
+    #endregion
 
     #region EndToken
 
@@ -160,6 +195,28 @@ public class ParserServiceTests
 
         instructions.Should().Equal(new OrgInstruction(1), new OrgInstruction(2), new OrgInstruction(3),
             new OrgInstruction(4), new EndInstruction());
+    }
+
+    #endregion
+
+    #region LabelToken
+
+    [Fact]
+    public void GivenTokenListWithLabelTokenWithOtherToken_ThenThrowInstructionParseException()
+    {
+        var func = () => _parserService
+            .Parse(new List<TokenList> { new([new LabelToken("Label"), new StringValueToken("abc")]) })
+            .ToList();
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenTokenListWithLabelTokenWithoutOtherToken_ThenReturnLabelInstruction()
+    {
+        var instructions = _parserService.Parse(new List<TokenList> { new([new LabelToken("Label")]) });
+
+        instructions.Should().Equal(new LabelInstruction("Label"));
     }
 
     #endregion
