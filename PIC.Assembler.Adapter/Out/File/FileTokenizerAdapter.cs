@@ -90,7 +90,9 @@ public class FileTokenizerAdapter : ITokenizer
             "-" => Option<Token>.Some(new MinusToken()),
             "&" => Option<Token>.Some(new AmpersandToken()),
             "|" => Option<Token>.Some(new BarToken()),
-            // TODO: add comma, bitwise negation, bitwise xor
+            "^" => Option<Token>.Some(new XorToken()),
+            "~" => Option<Token>.Some(new TildaToken()),
+            "," => Option<Token>.Some(new CommaToken()),
             _ => Option<Token>.None()
         };
     }

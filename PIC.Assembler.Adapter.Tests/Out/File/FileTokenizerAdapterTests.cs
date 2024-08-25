@@ -130,6 +130,19 @@ public class FileTokenizerAdapterTests
         tokens[0].Tokens.Should().Equal(new LabelToken("LABEL"));
     }
 
+
+    [Theory]
+    [FileDataPath("TestData/MnemonicWithComma.asm")]
+    [FileDataPath("TestData/MnemonicWithCommaCompact.asm")]
+    public void GivenMnemonicWithComma_ShouldReturnListWith4Tokens(string filePath)
+    {
+        var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
+
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("MOV"), new NameConstantToken("A"), new CommaToken(),
+            new NameConstantToken("B"));
+    }
+
     [Theory]
     [FileDataPath("TestData/Operation/LeftShiftExpression.asm")]
     [FileDataPath("TestData/Operation/LeftShiftExpressionCompact.asm")]
@@ -228,6 +241,30 @@ public class FileTokenizerAdapterTests
         tokens.Should().HaveCount(1);
         tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(2),
             new BarToken(), new NumberValueToken(4));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Operation/ConstantEquateWithXorBitwise.asm")]
+    [FileDataPath("TestData/Operation/ConstantEquateWithXorBitwiseCompact.asm")]
+    public void GivenConstantEquateWithXorBitwise_ShouldReturnListWith5Tokens(string filePath)
+    {
+        var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
+
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(2),
+            new XorToken(), new NumberValueToken(4));
+    }
+
+    [Theory]
+    [FileDataPath("TestData/Operation/ConstantEquateWithNegationBitwise.asm")]
+    [FileDataPath("TestData/Operation/ConstantEquateWithNegationBitwiseCompact.asm")]
+    public void GivenConstantEquateWithXorBitwise_ShouldReturnListWith4Tokens(string filePath)
+    {
+        var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
+
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new TildaToken(),
+            new NumberValueToken(5));
     }
 
     [Theory]
