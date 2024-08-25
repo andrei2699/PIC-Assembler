@@ -241,6 +241,83 @@ public class ArithmeticExpressionParserTests
 
     #endregion
 
+    #region Bitwise Xor Expression
+
+    [Fact]
+    public void GivenBitwiseXor_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([new NumberValueToken(1), new XorToken(), new NumberValueToken(3)]));
+
+        arithmeticExpression.Evaluate().Should().Be(1 ^ 3);
+    }
+
+    [Fact]
+    public void GivenBitwiseXorWithoutOperands_ThenThrowInstructionParseException()
+    {
+        var func = () => _parser.Parse(new TokenList([new XorToken()]));
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenBitwiseXorWithoutLeftOperand_ThenThrowInstructionParseException()
+    {
+        var func = () => _parser.Parse(new TokenList([new XorToken(), new NumberValueToken(2)]));
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenBitwiseXorWithoutRightOperand_ThenThrowInstructionParseException()
+    {
+        var func = () => _parser.Parse(new TokenList([new NumberValueToken(2), new XorToken()]));
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    #endregion
+
+    #region Bitwise Negation Expression
+
+    [Fact]
+    public void GivenBitwiseNegation_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([new TildaToken(), new NumberValueToken(5)]));
+
+        arithmeticExpression.Evaluate().Should().Be(~5);
+    }
+
+
+    [Fact]
+    public void GivenBitwiseNegationMultipleTimes_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(
+                new TokenList([new TildaToken(), new TildaToken(), new TildaToken(), new NumberValueToken(5)]));
+
+        arithmeticExpression.Evaluate().Should().Be(~~~5);
+    }
+
+    [Fact]
+    public void GivenBitwiseNegationWithoutOperands_ThenThrowInstructionParseException()
+    {
+        var func = () => _parser.Parse(new TokenList([new XorToken()]));
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenBitwiseNegationWithLeftOperand_ThenThrowInstructionParseException()
+    {
+        var func = () => _parser.Parse(new TokenList([new NumberValueToken(2), new TildaToken()]));
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    #endregion
+
     #region Precedence
 
     [Fact]
@@ -321,6 +398,19 @@ public class ArithmeticExpressionParserTests
         arithmeticExpression.Evaluate().Should().Be(999 - 1 - 7 >> 2 >> 7 - 4);
     }
 
+
+    [Fact]
+    public void GivenBitwiseAndOrXor_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new NumberValueToken(1), new BarToken(), new NumberValueToken(5), new XorToken(),
+                new NumberValueToken(3), new AmpersandToken(), new NumberValueToken(7)
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(1 | 5 ^ 3 & 7);
+    }
+
     #endregion
 
     #region Parenthesis
@@ -395,6 +485,54 @@ public class ArithmeticExpressionParserTests
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(5);
+    }
+
+    [Fact]
+    public void GivenBitwiseAndInParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new NumberValueToken(10), new AmpersandToken(), new NumberValueToken(1),
+                new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(10 & 1);
+    }
+
+    [Fact]
+    public void GivenBitwiseOrInParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new NumberValueToken(10), new BarToken(), new NumberValueToken(1),
+                new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(10 | 1);
+    }
+
+    [Fact]
+    public void GivenBitwiseXorInParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new NumberValueToken(10), new XorToken(), new NumberValueToken(1),
+                new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(10 ^ 1);
+    }
+
+    [Fact]
+    public void GivenBitwiseNegationInParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new TildaToken(), new NumberValueToken(1),
+                new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(~1);
     }
 
     [Fact]
@@ -498,9 +636,8 @@ public class ArithmeticExpressionParserTests
         yield return [new IncludeToken()];
         yield return [new LabelToken("label")];
         yield return [new OrgToken()];
+        yield return [new CommaToken()];
     }
-
-// TODO: add test cases for parenthesis that are not closed or opened correctly    
 
     #endregion
 }

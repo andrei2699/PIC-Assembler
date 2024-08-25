@@ -40,6 +40,7 @@ public class ArithmeticExpressionParser
                 RightShiftToken => new RightShiftExpression(left, right),
                 AmpersandToken => new BitwiseAndExpression(left, right),
                 BarToken => new BitwiseOrExpression(left, right),
+                XorToken => new BitwiseXorExpression(left, right),
                 _ => throw new InstructionParseException("operator not implemented")
             };
         }
@@ -49,10 +50,15 @@ public class ArithmeticExpressionParser
 
     private (IArithmeticExpression expression, int nextIndex) ParseUnary(TokenList tokenList, int index)
     {
-        // TODO: here to check if token is unary operator, for example ^
-        // var token = tokenList.GetTokenOption<Token>(index).OrElseThrow(new InstructionParseException("missing token"));
-
-        return ParsePrimary(tokenList, index);
+        var token = tokenList.GetTokenOption<Token>(index).OrElseThrow(new InstructionParseException("missing token"));
+        switch (token)
+        {
+            case TildaToken:
+                var (expression, nextIndex) = ParseUnary(tokenList, index + 1);
+                return (new BitwiseNegationExpression(expression), nextIndex);
+            default:
+                return ParsePrimary(tokenList, index);
+        }
     }
 
     private (IArithmeticExpression expression, int nextIndex) ParsePrimary(TokenList tokenList, int index)
@@ -101,7 +107,7 @@ public class ArithmeticExpressionParser
             PlusToken or MinusToken => 5,
             LeftShiftToken or RightShiftToken => 4,
             AmpersandToken => 3,
-            // TODO: XorToken => 2
+            XorToken => 2,
             BarToken => 1,
             _ => 0
         };
