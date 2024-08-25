@@ -241,12 +241,235 @@ public class ArithmeticExpressionParserTests
 
     #endregion
 
+    #region Precedence
+
+    [Fact]
+    public void GivenAdditionsAndSubtractions_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new NumberValueToken(1), new PlusToken(), new NumberValueToken(2), new PlusToken(),
+                new NumberValueToken(3), new MinusToken(), new NumberValueToken(4), new MinusToken(),
+                new NumberValueToken(5), new PlusToken(), new NumberValueToken(8)
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(1 + 2 + 3 - 4 - 5 + 8);
+    }
+
+    [Fact]
+    public void GivenLeftAndRightShifts_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new NumberValueToken(1), new LeftShiftToken(), new NumberValueToken(2), new LeftShiftToken(),
+                new NumberValueToken(7), new RightShiftToken(), new NumberValueToken(4), new RightShiftToken(),
+                new NumberValueToken(5), new LeftShiftToken(), new NumberValueToken(8)
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(1 << 2 << 7 >> 4 >> 5 << 8);
+    }
+
+    [Fact]
+    public void GivenAdditionAndLeftShift_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new NumberValueToken(1), new PlusToken(), new NumberValueToken(2), new PlusToken(),
+                new NumberValueToken(3), new LeftShiftToken(), new NumberValueToken(4), new LeftShiftToken(),
+                new NumberValueToken(5), new PlusToken(), new NumberValueToken(8)
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(1 + 2 + 3 << 4 << 5 + 8);
+    }
+
+    [Fact]
+    public void GivenAdditionAndRightShift_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new NumberValueToken(1), new PlusToken(), new NumberValueToken(8), new PlusToken(),
+                new NumberValueToken(9999), new RightShiftToken(), new NumberValueToken(2), new RightShiftToken(),
+                new NumberValueToken(1), new PlusToken(), new NumberValueToken(8)
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(1 + 8 + 9999 >> 2 >> 1 + 8);
+    }
+
+    [Fact]
+    public void GivenSubtractionAndLeftShift_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new NumberValueToken(999), new MinusToken(), new NumberValueToken(1), new MinusToken(),
+                new NumberValueToken(7), new LeftShiftToken(), new NumberValueToken(2), new LeftShiftToken(),
+                new NumberValueToken(7), new MinusToken(), new NumberValueToken(4)
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(999 - 1 - 7 << 2 << 7 - 4);
+    }
+
+    [Fact]
+    public void GivenSubtractionAndRightShift_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new NumberValueToken(999), new MinusToken(), new NumberValueToken(1), new MinusToken(),
+                new NumberValueToken(7), new RightShiftToken(), new NumberValueToken(2), new RightShiftToken(),
+                new NumberValueToken(7), new MinusToken(), new NumberValueToken(4)
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(999 - 1 - 7 >> 2 >> 7 - 4);
+    }
+
+    #endregion
+
+    #region Parenthesis
+
+    [Fact]
+    public void GivenNumberInParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new NumberValueToken(1234), new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(1234);
+    }
+
+    [Fact]
+    public void GivenNumberInMultipleParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new OpenParenthesisToken(), new OpenParenthesisToken(),
+                new NumberValueToken(1234), new ClosedParenthesisToken(), new ClosedParenthesisToken(),
+                new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(1234);
+    }
+
+    [Fact]
+    public void GivenAdditionInParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new NumberValueToken(1), new PlusToken(), new NumberValueToken(2),
+                new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(3);
+    }
+
+    [Fact]
+    public void GivenSubtractionInParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new NumberValueToken(3), new MinusToken(), new NumberValueToken(2),
+                new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(1);
+    }
+
+    [Fact]
+    public void GivenLeftShiftInParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new NumberValueToken(4), new LeftShiftToken(), new NumberValueToken(1),
+                new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(8);
+    }
+
+    [Fact]
+    public void GivenRightShiftInParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new NumberValueToken(10), new RightShiftToken(), new NumberValueToken(1),
+                new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(5);
+    }
+
+    [Fact]
+    public void GivenComplexExpressionWithParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new NumberValueToken(10), new PlusToken(), new NumberValueToken(5),
+                new ClosedParenthesisToken(), new LeftShiftToken(), new NumberValueToken(3), new MinusToken(),
+                new OpenParenthesisToken(), new NumberValueToken(2), new LeftShiftToken(), new NumberValueToken(1),
+                new ClosedParenthesisToken(), new PlusToken(), new OpenParenthesisToken(), new OpenParenthesisToken(),
+                new NumberValueToken(8), new RightShiftToken(), new NumberValueToken(1), new ClosedParenthesisToken(),
+                new MinusToken(), new NumberValueToken(3), new ClosedParenthesisToken(), new LeftShiftToken(),
+                new NumberValueToken(2)
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be((10 + 5) << 3 - (2 << 1) + ((8 >> 1) - 3) << 2);
+    }
+
+    #endregion
+
     #region Invalid Expression
 
     [Fact]
     public void GivenEmptyTokenList_ThenThrowInstructionParseException()
     {
         var func = () => _parser.Parse(new TokenList([]));
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenTokenListWithMultipleNumbersWithoutOperators_ThenThrowInstructionParseException()
+    {
+        var func = () =>
+            _parser.Parse(new TokenList([new NumberValueToken(2), new NumberValueToken(3), new NumberValueToken(6)]));
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenTokenListWithOneNumberWithMultipleBinaryOperators_ThenThrowInstructionParseException()
+    {
+        var func = () =>
+            _parser.Parse(new TokenList([new NumberValueToken(2), new PlusToken(), new PlusToken()]));
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenTokenListStartingWithCloseParenthesis_ThenThrowInstructionParseException()
+    {
+        var func = () =>
+            _parser.Parse(new TokenList([new ClosedParenthesisToken(), new NumberValueToken(2)]));
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenTokenListWithUnclosedParenthesis_ThenThrowInstructionParseException()
+    {
+        var func = () =>
+            _parser.Parse(new TokenList([new OpenParenthesisToken(), new NumberValueToken(2)]));
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenTokenListWithDoubleClosedParenthesis_ThenThrowInstructionParseException()
+    {
+        var func = () =>
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new NumberValueToken(2), new ClosedParenthesisToken(),
+                new ClosedParenthesisToken()
+            ]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -276,6 +499,8 @@ public class ArithmeticExpressionParserTests
         yield return [new LabelToken("label")];
         yield return [new OrgToken()];
     }
+
+// TODO: add test cases for parenthesis that are not closed or opened correctly    
 
     #endregion
 }

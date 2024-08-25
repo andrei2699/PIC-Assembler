@@ -8,66 +8,71 @@ namespace PIC.Assembler.Application.Domain.Service;
 
 public class ArithmeticExpressionParser
 {
-    public IArithmeticExpression Parse(TokenList tokens)
+    public IArithmeticExpression Parse(TokenList tokenList)
     {
-        var (expression, nextIndex) = ParseExpression(tokens, 0);
+        var (expression, nextIndex) = ParseExpression(tokenList, 0, 0);
 
-        if (nextIndex < tokens.Tokens.Count)
+        if (nextIndex < tokenList.Tokens.Count)
         {
-            throw new InstructionParseException("unexpected token detected");
+            throw new InstructionParseException("unexpected remaining tokens");
         }
 
         return expression;
     }
 
-    private (IArithmeticExpression expression, int nextIndex) ParseExpression(TokenList tokenList, int index)
+    private (IArithmeticExpression expression, int nextIndex) ParseExpression(TokenList tokenList, int index,
+        int precedence)
     {
-        var (leftExpression, operandNextIndex) = ParseTerm(tokenList, index);
+        var (left, nextIndex) = ParseUnary(tokenList, index);
 
-        var operatorToken = tokenList.GetTokenOption<Token>(operandNextIndex);
-        if (!operatorToken.HasValue())
+        while (tokenList.GetTokenOption<Token>(nextIndex).HasValue() &&
+               GetPrecedence(tokenList.GetTokenOption<Token>(nextIndex).Get()) >= precedence)
         {
-            return (leftExpression, operandNextIndex + 1);
+            var operatorToken = tokenList.GetTokenOption<Token>(nextIndex).Get();
+
+            (var right, nextIndex) = ParseExpression(tokenList, nextIndex + 1, GetPrecedence(operatorToken) + 1);
+
+            left = operatorToken switch
+            {
+                PlusToken => new AdditionExpression(left, right),
+                MinusToken => new SubtractionExpression(left, right),
+                LeftShiftToken => new LeftShiftExpression(left, right),
+                RightShiftToken => new RightShiftExpression(left, right),
+                AmpersandToken => new BitwiseAndExpression(left, right),
+                BarToken => new BitwiseOrExpression(left, right),
+                _ => throw new InstructionParseException("operator not implemented")
+            };
         }
 
-        var (rightExpression, rightOperandNextIndex) = ParseTerm(tokenList, operandNextIndex + 1);
-
-        return operatorToken.Get() switch
-        {
-            PlusToken => (new AdditionExpression(leftExpression, rightExpression), rightOperandNextIndex),
-            MinusToken => (new SubtractionExpression(leftExpression, rightExpression), rightOperandNextIndex),
-            LeftShiftToken => (new LeftShiftExpression(leftExpression, rightExpression), rightOperandNextIndex),
-            RightShiftToken => (new RightShiftExpression(leftExpression, rightExpression), rightOperandNextIndex),
-            AmpersandToken => (new BitwiseAndExpression(leftExpression, rightExpression), rightOperandNextIndex),
-            BarToken => (new BitwiseOrExpression(leftExpression, rightExpression), rightOperandNextIndex),
-            _ => throw new InstructionParseException("operator not implemented")
-        };
+        return (left, nextIndex);
     }
 
-    private (IArithmeticExpression expression, int nextIndex) ParseTerm(TokenList tokenList, int index)
+    private (IArithmeticExpression expression, int nextIndex) ParseUnary(TokenList tokenList, int index)
     {
-        var tokenOption = tokenList.GetTokenOption<Token>(index);
+        // TODO: here to check if token is unary operator, for example ^
+        // var token = tokenList.GetTokenOption<Token>(index).OrElseThrow(new InstructionParseException("missing token"));
 
-        if (!tokenOption.HasValue())
-        {
-            throw new InstructionParseException("missing token");
-        }
+        return ParsePrimary(tokenList, index);
+    }
 
-        var token = tokenOption.Get();
+    private (IArithmeticExpression expression, int nextIndex) ParsePrimary(TokenList tokenList, int index)
+    {
+        var token = tokenList.GetTokenOption<Token>(index).OrElseThrow(new InstructionParseException("missing token"));
+
         switch (token)
         {
             case NumberValueToken numberValueToken:
                 return (new ConstantExpression(numberValueToken.Value), index + 1);
             case OpenParenthesisToken:
-                var (expression, nextIndex) = ParseExpression(tokenList, index + 1);
+                var (expression, nextIndex) = ParseExpression(tokenList, index + 1, 0);
 
                 tokenList.GetTokenOption<ClosedParenthesisToken>(nextIndex)
                     .OrElseThrow(new InstructionParseException("missing close parenthesis"));
 
-                return (expression, nextIndex + 2);
+                return (expression, nextIndex + 1);
             default:
             {
-                if (IsTokenValid(token))
+                if (!IsTokenValid(token))
                 {
                     throw new InstructionParseException($"invalid token {token}");
                 }
@@ -84,6 +89,21 @@ public class ArithmeticExpressionParser
             NumberValueToken or AmpersandToken or BarToken or ClosedParenthesisToken or DollarToken or LeftShiftToken
                 or MinusToken or OpenParenthesisToken or PlusToken or RightShiftToken or NameConstantToken => true,
             _ => false
+        };
+    }
+
+    private static int GetPrecedence(Token token)
+    {
+        return token switch
+        {
+            OpenParenthesisToken => 10,
+            ClosedParenthesisToken => -1,
+            PlusToken or MinusToken => 5,
+            LeftShiftToken or RightShiftToken => 4,
+            AmpersandToken => 3,
+            // TODO: XorToken => 2
+            BarToken => 1,
+            _ => 0
         };
     }
 }
