@@ -7,16 +7,16 @@ using PIC.Assembler.Common;
 
 namespace PIC.Assembler.Adapter.Out.File;
 
-public class FileParserAdapter : IParser
+public class FileTokenizerAdapter : ITokenizer
 {
     private const string CommentLiteral = ";";
 
-    public IEnumerable<TokenList> Parse(string filepath)
+    public IEnumerable<TokenList> Tokenize(string filepath)
     {
         return GetCleanedLines(filepath)
             .Select(line => new TokenList(line.Split(" ")
-                .Select(ParseTokens)
-                .SelectMany(tokenList => tokenList)));
+                .Select(ParseToken)
+                .SelectMany(tokenList => tokenList).ToList()));
     }
 
     private static IEnumerable<string> GetCleanedLines(string filepath)
@@ -36,7 +36,7 @@ public class FileParserAdapter : IParser
         return indexOf >= 0 ? line[..indexOf] : line;
     }
 
-    private static IEnumerable<Token> ParseTokens(string token)
+    private static IEnumerable<Token> ParseToken(string token)
     {
         var keywordToken = ParseKeywordToken(token);
         if (keywordToken.HasValue())
@@ -163,7 +163,7 @@ public class FileParserAdapter : IParser
 
         if (builder.Length > 0)
         {
-            foreach (var other in ParseTokens(builder.ToString()))
+            foreach (var other in ParseToken(builder.ToString()))
             {
                 yield return other;
             }
