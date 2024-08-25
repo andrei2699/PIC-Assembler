@@ -54,8 +54,15 @@ public class ArithmeticExpressionParser
         switch (token)
         {
             case TildaToken:
+            {
                 var (expression, nextIndex) = ParseUnary(tokenList, index + 1);
                 return (new BitwiseNegationExpression(expression), nextIndex);
+            }
+            case MinusToken:
+            {
+                var (expression, nextIndex) = ParseUnary(tokenList, index + 1);
+                return (new NumericNegationExpression(expression), nextIndex);
+            }
             default:
                 return ParsePrimary(tokenList, index);
         }

@@ -19,6 +19,28 @@ public class ArithmeticExpressionParserTests
         arithmeticExpression.Evaluate().Should().Be(123);
     }
 
+    #region Numeric Negation
+
+    [Fact]
+    public void GivenNegativeNumberToken_WhenEvaluate_ThenComputedValue()
+    {
+        var arithmeticExpression = _parser.Parse(new TokenList([new MinusToken(), new NumberValueToken(123)]));
+
+        arithmeticExpression.Evaluate().Should().Be(-123);
+    }
+
+    [Fact]
+    public void GivenNegativeNumberTokenMultipleTimes_WhenEvaluate_ThenComputedValue()
+    {
+        var arithmeticExpression = _parser.Parse(new TokenList([
+            new MinusToken(), new MinusToken(), new MinusToken(), new NumberValueToken(123)
+        ]));
+
+        arithmeticExpression.Evaluate().Should().Be(-123);
+    }
+
+    #endregion
+
     #region Addition Expression
 
     [Fact]
@@ -71,14 +93,6 @@ public class ArithmeticExpressionParserTests
     public void GivenSubtractionWithoutOperands_ThenThrowInstructionParseException()
     {
         var func = () => _parser.Parse(new TokenList([new MinusToken()]));
-
-        func.Should().Throw<InstructionParseException>();
-    }
-
-    [Fact]
-    public void GivenSubtractionWithoutLeftOperand_ThenThrowInstructionParseException()
-    {
-        var func = () => _parser.Parse(new TokenList([new MinusToken(), new NumberValueToken(2)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -437,6 +451,30 @@ public class ArithmeticExpressionParserTests
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(1234);
+    }
+
+    [Fact]
+    public void GivenNegativeNumberInParenthesis_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new MinusToken(), new NumberValueToken(1234), new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(-1234);
+    }
+
+
+    [Fact]
+    public void GivenNegativeNumberInParenthesisMultipleTimes_WhenEvaluate_ThenReturnComputedValue()
+    {
+        var arithmeticExpression =
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(), new MinusToken(), new MinusToken(), new MinusToken(),
+                new NumberValueToken(1234), new ClosedParenthesisToken()
+            ]));
+
+        arithmeticExpression.Evaluate().Should().Be(-1234);
     }
 
     [Fact]
