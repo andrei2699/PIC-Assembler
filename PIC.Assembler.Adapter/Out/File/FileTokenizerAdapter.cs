@@ -103,11 +103,11 @@ public class FileTokenizerAdapter : ITokenizer
             _ when IsLabel(token) => Option<Token>.Some(new LabelToken(token.TrimEnd(':').ToUpperInvariant())),
             _ when IsStringValueToken(token) => Option<Token>.Some(new StringValueToken(token.Trim('"'))),
             _ when IsCharacterValueToken(token) => Option<Token>.Some(new CharacterValueToken(token.Trim('\'')[0])),
-            _ when IsDecimalValueToken(token, out var number) => Option<Token>.Some(new DecimalValueToken(number)),
+            _ when IsDecimalValueToken(token, out var number) => Option<Token>.Some(new NumberValueToken(number)),
             _ when IsHexadecimalValueToken(token) => Option<Token>.Some(
-                new HexadecimalValueToken(Convert.ToInt32(token, 16))),
+                new NumberValueToken(Convert.ToInt32(token, 16))),
             _ when IsBinaryValueToken(token) => Option<Token>.Some(
-                new BinaryValueToken(Convert.ToInt32(token[..^1], 2))),
+                new NumberValueToken(Convert.ToInt32(token[..^1], 2))),
             _ => Option<Token>.None()
         };
     }

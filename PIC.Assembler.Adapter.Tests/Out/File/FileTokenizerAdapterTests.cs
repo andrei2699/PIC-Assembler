@@ -48,7 +48,7 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(2));
     }
 
     [Theory]
@@ -60,7 +60,7 @@ public class FileTokenizerAdapterTests
 
         tokens.Should().HaveCount(1);
         tokens[0].Tokens.Should()
-            .Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new HexadecimalValueToken(10));
+            .Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(10));
     }
 
     [Theory]
@@ -71,7 +71,7 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new BinaryValueToken(5));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(5));
     }
 
     [Theory]
@@ -105,7 +105,7 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new OrgToken(), new HexadecimalValueToken(0));
+        tokens[0].Tokens.Should().Equal(new OrgToken(), new NumberValueToken(0));
     }
 
     [Theory]
@@ -138,8 +138,8 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(1),
-            new LeftShiftToken(), new DecimalValueToken(3));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(1),
+            new LeftShiftToken(), new NumberValueToken(3));
     }
 
     [Theory]
@@ -150,8 +150,8 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(1),
-            new RightShiftToken(), new DecimalValueToken(3));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(1),
+            new RightShiftToken(), new NumberValueToken(3));
     }
 
     [Theory]
@@ -163,7 +163,7 @@ public class FileTokenizerAdapterTests
 
         tokens.Should().HaveCount(1);
         tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(),
-            new OpenParenthesisToken(), new DecimalValueToken(2), new ClosedParenthesisToken());
+            new OpenParenthesisToken(), new NumberValueToken(2), new ClosedParenthesisToken());
     }
 
     [Theory]
@@ -174,8 +174,8 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
-            new PlusToken(), new DecimalValueToken(4));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(2),
+            new PlusToken(), new NumberValueToken(4));
     }
 
     [Theory]
@@ -187,10 +187,10 @@ public class FileTokenizerAdapterTests
 
         tokens.Should().HaveCount(2);
         tokens[0].Tokens.Should()
-            .Equal(new NameConstantToken("VARIABLE1"), new EquateToken(), new DecimalValueToken(5));
+            .Equal(new NameConstantToken("VARIABLE1"), new EquateToken(), new NumberValueToken(5));
         tokens[1].Tokens.Should()
             .Equal(new NameConstantToken("VARIABLE2"), new EquateToken(), new OpenParenthesisToken(),
-                new NameConstantToken("VARIABLE1"), new PlusToken(), new DecimalValueToken(2),
+                new NameConstantToken("VARIABLE1"), new PlusToken(), new NumberValueToken(2),
                 new ClosedParenthesisToken());
     }
 
@@ -202,8 +202,8 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
-            new MinusToken(), new DecimalValueToken(4));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(2),
+            new MinusToken(), new NumberValueToken(4));
     }
 
     [Theory]
@@ -214,8 +214,8 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
-            new AmpersandToken(), new DecimalValueToken(4));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(2),
+            new AmpersandToken(), new NumberValueToken(4));
     }
 
     [Theory]
@@ -226,8 +226,8 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new DecimalValueToken(2),
-            new BarToken(), new DecimalValueToken(4));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(2),
+            new BarToken(), new NumberValueToken(4));
     }
 
     [Theory]
@@ -239,6 +239,6 @@ public class FileTokenizerAdapterTests
 
         tokens.Should().HaveCount(1);
         tokens[0].Tokens.Should().Equal(new NameConstantToken("GOTO"), new DollarToken(), new PlusToken(),
-            new DecimalValueToken(1));
+            new NumberValueToken(1));
     }
 }
