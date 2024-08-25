@@ -1,12 +1,19 @@
-using PIC.Assembler.Application.Domain.Model;
 using PIC.Assembler.Application.Port.In;
+using PIC.Assembler.Application.Port.Out;
 
 namespace PIC.Assembler.Application.Domain.Service;
 
-public class AssembleService : IAssembleUseCase
+public class AssembleService(ITokenizer tokenizer, IParser parser, IHexWriter hexWriter) : IAssembleUseCase
 {
-    public IEnumerable<HexRecord> Assemble(AssembleCommand command)
+    public void Assemble(AssembleCommand command)
     {
-        throw new NotImplementedException();
+        // 1. parse input file
+        // 2. preprocessor - if #include is detected, stop parsing main file and parse the #include and then continue with main file (do recursive if needed)
+        // 3. create instructions with addresses based on Org and other tokens
+        // 4. parse expressions if needed
+        // 5. replace constants with values
+        // 6. write to output file in hex format
+
+        hexWriter.Write(parser.Parse(tokenizer.Tokenize(command.InputFilepath)), command.OutputFilepath);
     }
 }
