@@ -16,37 +16,42 @@ public class ParserService(ITokenizer tokenizer) : IParser
     {
         for (var i = 0; i < tokenList.Tokens.Count; i++)
         {
-            if (tokenList.Tokens[i] is EndToken)
+            switch (tokenList.Tokens[i])
             {
-                yield return new EndInstruction();
-            }
-            else if (tokenList.Tokens[i] is OrgToken)
-            {
-                if (i + 1 < tokenList.Tokens.Count &&
-                    tokenList.Tokens[i + 1] is NumberValueToken numberValueToken)
+                case EndToken:
+                    yield return new EndInstruction();
+                    break;
+                case OrgToken:
+                    yield return tokenList.GetTokenOption<NumberValueToken>(i + 1)
+                        .Map(t => new OrgInstruction(t.Value))
+                        .OrElseThrow(new InstructionParseException("org was missing number value"));
+                    break;
+                case IncludeToken:
                 {
-                    yield return new OrgInstruction(numberValueToken.Value);
-                }
-                else
-                {
-                    throw new InstructionParseException("org was missing number value");
-                }
-            }
-            else if (tokenList.Tokens[i] is IncludeToken)
-            {
-                if (i + 1 < tokenList.Tokens.Count &&
-                    tokenList.Tokens[i + 1] is StringValueToken stringValueToken)
-                {
-                    foreach (var instruction in Parse(tokenizer.Tokenize(stringValueToken.Value)))
+                    foreach (var instruction in ParseIncludeInstruction(tokenList, i + 1))
                     {
                         yield return instruction;
                     }
-                }
-                else
-                {
-                    throw new InstructionParseException("include was missing filepath");
+
+                    break;
                 }
             }
+        }
+    }
+
+    private IEnumerable<Instruction> ParseIncludeInstruction(TokenList tokenList, int index)
+    {
+        var option = tokenList.GetTokenOption<StringValueToken>(index)
+            .Map(t => Parse(tokenizer.Tokenize(t.Value)));
+
+        if (!option.HasValue())
+        {
+            throw new InstructionParseException("include was missing filepath");
+        }
+
+        foreach (var instruction in option.Get())
+        {
+            yield return instruction;
         }
     }
 }

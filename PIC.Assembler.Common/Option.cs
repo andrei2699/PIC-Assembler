@@ -29,6 +29,11 @@ public class Option<T> where T : class
         return _t ?? throw new InvalidOperationException();
     }
 
+    public Option<TR> Map<TR>(Func<T, TR> map) where TR : class
+    {
+        return HasValue() ? Option<TR>.Some(map(Get())) : Option<TR>.None();
+    }
+
     public Option<T> OrElse(Option<T> otherOption)
     {
         return HasValue() ? this : otherOption;
@@ -37,5 +42,10 @@ public class Option<T> where T : class
     public T OrElseGet(T other)
     {
         return HasValue() ? Get() : other;
+    }
+
+    public T OrElseThrow(Exception ex)
+    {
+        return HasValue() ? Get() : throw ex;
     }
 }

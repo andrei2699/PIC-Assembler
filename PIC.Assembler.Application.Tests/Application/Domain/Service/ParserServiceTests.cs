@@ -41,7 +41,7 @@ public class ParserServiceTests
     {
         var instructions = _parserService.Parse(new List<TokenList> { new([new EndToken()]) });
 
-        instructions.Should().Equal([new EndInstruction()]);
+        instructions.Should().Equal(new EndInstruction());
     }
 
     #endregion
@@ -71,7 +71,7 @@ public class ParserServiceTests
         var instructions = _parserService.Parse(new List<TokenList>
             { new([new OrgToken(), new NumberValueToken(1)]) });
 
-        instructions.Should().Equal([new OrgInstruction(1)]);
+        instructions.Should().Equal(new OrgInstruction(1));
     }
 
     #endregion
@@ -105,7 +105,7 @@ public class ParserServiceTests
         var instructions = _parserService.Parse(new List<TokenList>
             { new([new IncludeToken(), new StringValueToken("file.asm")]), new([new EndToken()]) });
 
-        instructions.Should().Equal([new OrgInstruction(4), new EndInstruction()]);
+        instructions.Should().Equal(new OrgInstruction(4), new EndInstruction());
     }
 
     [Fact]
@@ -128,10 +128,8 @@ public class ParserServiceTests
             new([new EndToken()])
         });
 
-        instructions.Should().Equal([
-            new OrgInstruction(1), new OrgInstruction(2), new OrgInstruction(3), new OrgInstruction(4),
-            new EndInstruction()
-        ]);
+        instructions.Should().Equal(new OrgInstruction(1), new OrgInstruction(2), new OrgInstruction(3),
+            new OrgInstruction(4), new EndInstruction());
     }
 
     [Fact]
@@ -160,10 +158,8 @@ public class ParserServiceTests
             new([new EndToken()])
         });
 
-        instructions.Should().Equal([
-            new OrgInstruction(1), new OrgInstruction(2), new OrgInstruction(3), new OrgInstruction(4),
-            new EndInstruction()
-        ]);
+        instructions.Should().Equal(new OrgInstruction(1), new OrgInstruction(2), new OrgInstruction(3),
+            new OrgInstruction(4), new EndInstruction());
     }
 
     #endregion
