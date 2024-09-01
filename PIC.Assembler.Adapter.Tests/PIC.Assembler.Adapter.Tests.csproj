@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="Out\**\TestData\**">
+        <Content Include="Out\**\*TestData\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
 

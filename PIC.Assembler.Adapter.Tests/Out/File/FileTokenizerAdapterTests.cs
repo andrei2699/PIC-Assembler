@@ -19,9 +19,9 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/EmptyLines/Empty.asm")]
-    [FileDataPath("TestData/EmptyLines/EmptyWithNewLines.asm")]
-    [FileDataPath("TestData/EmptyLines/EmptyWithNewLinesAndComments.asm")]
+    [FileDataPath("TokenizerTestData/EmptyLines/Empty.asm")]
+    [FileDataPath("TokenizerTestData/EmptyLines/EmptyWithNewLines.asm")]
+    [FileDataPath("TokenizerTestData/EmptyLines/EmptyWithNewLinesAndComments.asm")]
     public void GivenEmptyFile_ShouldReturnEmptyList(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -30,8 +30,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/End.asm")]
-    [FileDataPath("TestData/EndUppercase.asm")]
+    [FileDataPath("TokenizerTestData/End.asm")]
+    [FileDataPath("TokenizerTestData/EndUppercase.asm")]
     public void GivenEnd_ShouldReturnListWithEndToken(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -41,8 +41,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Values/ConstantEquateDecimalValue.asm")]
-    [FileDataPath("TestData/Values/ConstantEquateDecimalValueUppercase.asm")]
+    [FileDataPath("TokenizerTestData/Values/ConstantEquateDecimalValue.asm")]
+    [FileDataPath("TokenizerTestData/Values/ConstantEquateDecimalValueUppercase.asm")]
     public void GivenConstantEquateWithDecimalValue_ShouldReturnListWith3Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -52,8 +52,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Values/ConstantEquateHexadecimalValue.asm")]
-    [FileDataPath("TestData/Values/ConstantEquateHexadecimalValueUppercase.asm")]
+    [FileDataPath("TokenizerTestData/Values/ConstantEquateHexadecimalValue.asm")]
+    [FileDataPath("TokenizerTestData/Values/ConstantEquateHexadecimalValueUppercase.asm")]
     public void GivenConstantEquateWithHexadecimalValue_ShouldReturnListWith3Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -64,8 +64,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Values/ConstantEquateBinaryValue.asm")]
-    [FileDataPath("TestData/Values/ConstantEquateBinaryValueUppercase.asm")]
+    [FileDataPath("TokenizerTestData/Values/ConstantEquateBinaryValue.asm")]
+    [FileDataPath("TokenizerTestData/Values/ConstantEquateBinaryValueUppercase.asm")]
     public void GivenConstantEquateWithBinaryValue_ShouldReturnListWith3Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -75,8 +75,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/DefineCharacterValue.asm")]
-    [FileDataPath("TestData/DefineCharacterValueUppercase.asm")]
+    [FileDataPath("TokenizerTestData/DefineCharacterValue.asm")]
+    [FileDataPath("TokenizerTestData/DefineCharacterValueUppercase.asm")]
     public void GivenDefineWithCharacterValue_ShouldReturnListWith3Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -87,8 +87,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Include.asm")]
-    [FileDataPath("TestData/IncludeUppercase.asm")]
+    [FileDataPath("TokenizerTestData/Include.asm")]
+    [FileDataPath("TokenizerTestData/IncludeUppercase.asm")]
     public void GivenInclude_ShouldReturnListWith2Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -98,8 +98,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Org.asm")]
-    [FileDataPath("TestData/OrgUppercase.asm")]
+    [FileDataPath("TokenizerTestData/Org.asm")]
+    [FileDataPath("TokenizerTestData/OrgUppercase.asm")]
     public void GivenOrg_ShouldReturnListWith2Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -109,8 +109,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Config.asm")]
-    [FileDataPath("TestData/ConfigUppercase.asm")]
+    [FileDataPath("TokenizerTestData/Config.asm")]
+    [FileDataPath("TokenizerTestData/ConfigUppercase.asm")]
     public void GivenConfig_ShouldReturnListWith2Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -120,8 +120,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Label.asm")]
-    [FileDataPath("TestData/LabelUppercase.asm")]
+    [FileDataPath("TokenizerTestData/Label.asm")]
+    [FileDataPath("TokenizerTestData/LabelUppercase.asm")]
     public void GivenLabel_ShouldReturnListWith1Token(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -132,8 +132,8 @@ public class FileTokenizerAdapterTests
 
 
     [Theory]
-    [FileDataPath("TestData/MnemonicWithComma.asm")]
-    [FileDataPath("TestData/MnemonicWithCommaCompact.asm")]
+    [FileDataPath("TokenizerTestData/MnemonicWithComma.asm")]
+    [FileDataPath("TokenizerTestData/MnemonicWithCommaCompact.asm")]
     public void GivenMnemonicWithComma_ShouldReturnListWith4Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -144,8 +144,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Operation/LeftShiftExpression.asm")]
-    [FileDataPath("TestData/Operation/LeftShiftExpressionCompact.asm")]
+    [FileDataPath("TokenizerTestData/Operation/LeftShiftExpression.asm")]
+    [FileDataPath("TokenizerTestData/Operation/LeftShiftExpressionCompact.asm")]
     public void GivenLeftShiftExpression_ShouldReturnListWith5Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -156,8 +156,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Operation/RightShiftExpression.asm")]
-    [FileDataPath("TestData/Operation/RightShiftExpressionCompact.asm")]
+    [FileDataPath("TokenizerTestData/Operation/RightShiftExpression.asm")]
+    [FileDataPath("TokenizerTestData/Operation/RightShiftExpressionCompact.asm")]
     public void GivenRightShiftExpression_ShouldReturnListWith5Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -168,8 +168,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Operation/ConstantEquateWithParenthesis.asm")]
-    [FileDataPath("TestData/Operation/ConstantEquateWithParenthesisCompact.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithParenthesis.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithParenthesisCompact.asm")]
     public void GivenConstantEquateWithParenthesis_ShouldReturnListWith5Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -180,8 +180,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Operation/ConstantEquateWithAddition.asm")]
-    [FileDataPath("TestData/Operation/ConstantEquateWithAdditionCompact.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithAddition.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithAdditionCompact.asm")]
     public void GivenConstantEquateWithAddition_ShouldReturnListWith5Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -192,8 +192,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Operation/ConstantEquateWithAdditionWithOtherConstant.asm")]
-    [FileDataPath("TestData/Operation/ConstantEquateWithAdditionWithOtherConstantCompact.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithAdditionWithOtherConstant.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithAdditionWithOtherConstantCompact.asm")]
     public void GivenConstantEquateWithAdditionWithOtherConstant_ShouldReturnListWith10Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -208,8 +208,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Operation/ConstantEquateWithSubtraction.asm")]
-    [FileDataPath("TestData/Operation/ConstantEquateWithSubtractionCompact.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithSubtraction.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithSubtractionCompact.asm")]
     public void GivenConstantEquateWithSubtraction_ShouldReturnListWith5Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -220,8 +220,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Operation/ConstantEquateWithAndBitwise.asm")]
-    [FileDataPath("TestData/Operation/ConstantEquateWithAndBitwiseCompact.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithAndBitwise.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithAndBitwiseCompact.asm")]
     public void GivenConstantEquateWithAndBitwise_ShouldReturnListWith5Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -232,8 +232,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Operation/ConstantEquateWithOrBitwise.asm")]
-    [FileDataPath("TestData/Operation/ConstantEquateWithOrBitwiseCompact.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithOrBitwise.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithOrBitwiseCompact.asm")]
     public void GivenConstantEquateWithOrBitwise_ShouldReturnListWith5Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -244,8 +244,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Operation/ConstantEquateWithXorBitwise.asm")]
-    [FileDataPath("TestData/Operation/ConstantEquateWithXorBitwiseCompact.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithXorBitwise.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithXorBitwiseCompact.asm")]
     public void GivenConstantEquateWithXorBitwise_ShouldReturnListWith5Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -256,8 +256,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Operation/ConstantEquateWithNegationBitwise.asm")]
-    [FileDataPath("TestData/Operation/ConstantEquateWithNegationBitwiseCompact.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithNegationBitwise.asm")]
+    [FileDataPath("TokenizerTestData/Operation/ConstantEquateWithNegationBitwiseCompact.asm")]
     public void GivenConstantEquateWithXorBitwise_ShouldReturnListWith4Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
@@ -268,8 +268,8 @@ public class FileTokenizerAdapterTests
     }
 
     [Theory]
-    [FileDataPath("TestData/Operation/GotoWithNextAddress.asm")]
-    [FileDataPath("TestData/Operation/GotoWithNextAddressCompact.asm")]
+    [FileDataPath("TokenizerTestData/Operation/GotoWithNextAddress.asm")]
+    [FileDataPath("TokenizerTestData/Operation/GotoWithNextAddressCompact.asm")]
     public void GivenGotoWithNextAddress_ShouldReturnListWith4Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
