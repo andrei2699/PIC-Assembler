@@ -231,7 +231,7 @@ public class ParserServiceTests
     #region Mnemonics
 
     [Fact]
-    public void GivenTokenListWithNameConstantThatIsNotInInstructionSet_ThenThrowException()
+    public void GivenTokenListWithNameConstantThatIsNotInInstructionSet_ThenThrowKeyNotFoundException()
     {
         var func = () => _parserService.Parse(new List<TokenList>
                 { new([new NameConstantToken("INSTRUCTION")]) },
@@ -245,12 +245,9 @@ public class ParserServiceTests
     {
         var instructions = _parserService.Parse(new List<TokenList>
                 { new([new NameConstantToken("INSTRUCTION")]) },
-            new InstructionSet
-            {
-                { "INSTRUCTION", "0" }
-            }).ToList();
+            CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 0 } })).ToList();
 
-        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [])]);
+        instructions.Should().BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", []), [])]);
     }
 
     [Fact]
@@ -262,16 +259,17 @@ public class ParserServiceTests
                 new([new NameConstantToken("INSTRUCTION2")]),
                 new([new NameConstantToken("INSTRUCTION3")]),
             },
-            new InstructionSet
+            CreateInstructionSet(new Dictionary<string, int>
             {
-                { "INSTRUCTION1", "00" },
-                { "INSTRUCTION2", "01" },
-                { "INSTRUCTION3", "11" },
-            }).ToList();
+                { "INSTRUCTION1", 0 },
+                { "INSTRUCTION2", 0 },
+                { "INSTRUCTION3", 0 },
+            })).ToList();
 
         instructions.Should().BeEquivalentTo([
-            new Mnemonic("INSTRUCTION1", "00", []), new Mnemonic("INSTRUCTION2", "01", []),
-            new Mnemonic("INSTRUCTION3", "11", []),
+            new Mnemonic(new InstructionDefinition("INSTRUCTION1", "0", []), []),
+            new Mnemonic(new InstructionDefinition("INSTRUCTION2", "0", []), []),
+            new Mnemonic(new InstructionDefinition("INSTRUCTION3", "0", []), []),
         ], options => options.RespectingRuntimeTypes());
     }
 
@@ -280,12 +278,10 @@ public class ParserServiceTests
     {
         var instructions = _parserService.Parse(new List<TokenList>
                 { new([new NameConstantToken("INSTRUCTION"), new NumberValueToken(3)]) },
-            new InstructionSet
-            {
-                { "INSTRUCTION", "0" }
-            }).ToList();
+            CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
-        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3])]);
+        instructions.Should()
+            .BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [3])]);
     }
 
     [Fact]
@@ -298,12 +294,11 @@ public class ParserServiceTests
                     new NumberValueToken(5)
                 ])
             },
-            new InstructionSet
-            {
-                { "INSTRUCTION", "0" }
-            }).ToList();
+            CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 2 } })).ToList();
 
-        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3, 5])]);
+        instructions.Should().BeEquivalentTo([
+            new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1"]), [3, 5])
+        ]);
     }
 
     [Fact]
@@ -318,12 +313,11 @@ public class ParserServiceTests
                     new NumberValueToken(10)
                 ])
             },
-            new InstructionSet
-            {
-                { "INSTRUCTION", "0" }
-            }).ToList();
+            CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 4 } })).ToList();
 
-        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3, 5, 6, 10])]);
+        instructions.Should().BeEquivalentTo([
+            new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1", "p-2", "p-3"]), [3, 5, 6, 10])
+        ]);
     }
 
     [Fact]
@@ -336,12 +330,10 @@ public class ParserServiceTests
                     new NumberValueToken(8)
                 ])
             },
-            new InstructionSet
-            {
-                { "INSTRUCTION", "0" }
-            }).ToList();
+            CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
-        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [1 << 8])]);
+        instructions.Should()
+            .BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [1 << 8])]);
     }
 
     [Fact]
@@ -354,14 +346,11 @@ public class ParserServiceTests
                     new LeftShiftToken(), new NumberValueToken(8), new ClosedParenthesisToken()
                 ])
             },
-            new InstructionSet
-            {
-                { "INSTRUCTION", "0" }
-            }).ToList();
+            CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
-        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [1 << 8])]);
+        instructions.Should()
+            .BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [1 << 8])]);
     }
-
 
     [Fact]
     public void GivenTokenListWithNameConstantAndTwoExpressionsSeparatedByComma_ThenReturnMnemonicWithTwoParameters()
@@ -374,12 +363,11 @@ public class ParserServiceTests
                     new NumberValueToken(5), new RightShiftToken(), new NumberValueToken(1)
                 ])
             },
-            new InstructionSet
-            {
-                { "INSTRUCTION", "0" }
-            }).ToList();
+            CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 2 } })).ToList();
 
-        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [6 | 8, 5 >> 1])]);
+        instructions.Should().BeEquivalentTo([
+            new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1"]), [6 | 8, 5 >> 1])
+        ]);
     }
 
     [Fact]
@@ -396,12 +384,12 @@ public class ParserServiceTests
                     new NumberValueToken(9)
                 ])
             },
-            new InstructionSet
-            {
-                { "INSTRUCTION", "0" }
-            }).ToList();
+            CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 4 } })).ToList();
 
-        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3, 5 & 3, 6 ^ 7, 10 + 9])]);
+        instructions.Should().BeEquivalentTo([
+            new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1", "p-2", "p-3"]),
+                [3, 5 & 3, 6 ^ 7, 10 + 9])
+        ]);
     }
 
     [Fact]
@@ -413,10 +401,7 @@ public class ParserServiceTests
                     new NameConstantToken("INSTRUCTION"), new NumberValueToken(3), new NumberValueToken(5)
                 ])
             },
-            new InstructionSet
-            {
-                { "INSTRUCTION", "0" }
-            }).ToList();
+            CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 0 } })).ToList();
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -432,10 +417,7 @@ public class ParserServiceTests
                     new NumberValueToken(5), new CommaToken(), new NumberValueToken(6), new NumberValueToken(10)
                 ])
             },
-            new InstructionSet
-            {
-                { "INSTRUCTION", "0" }
-            }).ToList();
+            CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -461,12 +443,10 @@ public class ParserServiceTests
         {
             new([new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(3)]),
             new([new NameConstantToken("INSTRUCTION"), new NameConstantToken("VARIABLE")])
-        }, new InstructionSet
-        {
-            { "INSTRUCTION", "0" }
-        }).ToList();
+        }, CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
-        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3])]);
+        instructions.Should()
+            .BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [3])]);
     }
 
     [Fact]
@@ -479,12 +459,10 @@ public class ParserServiceTests
                 new NumberValueToken(3), new LeftShiftToken(), new NumberValueToken(1), new ClosedParenthesisToken()
             ]),
             new([new NameConstantToken("INSTRUCTION"), new NameConstantToken("VARIABLE")])
-        }, new InstructionSet
-        {
-            { "INSTRUCTION", "0" }
-        }).ToList();
+        }, CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
-        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3 << 1])]);
+        instructions.Should()
+            .BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [3 << 1])]);
     }
 
     [Fact]
@@ -500,10 +478,7 @@ public class ParserServiceTests
             new([
                 new NameConstantToken("INSTRUCTION"), new NameConstantToken("VAR")
             ])
-        }, new InstructionSet
-        {
-            { "INSTRUCTION", "0" }
-        }).ToList();
+        }, CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -529,13 +504,25 @@ public class ParserServiceTests
                 new NameConstantToken("INSTRUCTION"), new NameConstantToken("VAR1"), new CommaToken(),
                 new NameConstantToken("VAR2"), new CommaToken(), new NameConstantToken("VAR3")
             ])
-        }, new InstructionSet
-        {
-            { "INSTRUCTION", "0" }
-        }).ToList();
+        }, CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 3 } })).ToList();
 
-        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [2, 2 << 1, 2 + (2 << 1)])]);
+        instructions.Should().BeEquivalentTo([
+            new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1", "p-2"]),
+                [2, 2 << 1, 2 + (2 << 1)])
+        ]);
     }
 
     #endregion
+
+    private static InstructionSet CreateInstructionSet(Dictionary<string, int> instructions)
+    {
+        var instructionSet = new InstructionSet();
+        foreach (var instruction in instructions)
+        {
+            var parameterNames = Enumerable.Range(0, instruction.Value).Select(i => $"p-{i}").ToList();
+            instructionSet.AddDefinition(new InstructionDefinition(instruction.Key, "0", parameterNames));
+        }
+
+        return instructionSet;
+    }
 }

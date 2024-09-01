@@ -108,9 +108,9 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
         var parameters = parameterTokenLists.Select(arithmeticExpressionParser.Parse)
             .Select(expression => expression.Evaluate()).ToList();
 
-        var instructionOpCode = instructionSet[nameConstantToken.Name];
+        var instructionDefinition = instructionSet.GetDefinition(nameConstantToken.Name, parameters.Count);
 
-        yield return new Mnemonic(nameConstantToken.Name, instructionOpCode, parameters);
+        yield return new Mnemonic(instructionDefinition, parameters);
     }
 
     private static Token ReplaceNameConstantWithVariableValue(Token token, Dictionary<string, int> variables)
