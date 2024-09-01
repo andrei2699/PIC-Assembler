@@ -55,9 +55,7 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
                 break;
             }
             default:
-            {
                 throw new InstructionParseException($"{tokenList.Tokens[0]} is not a valid instruction");
-            }
         }
     }
 
@@ -88,26 +86,41 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
         yield return new LabelInstruction(labelToken.Name);
     }
 
-
     private IEnumerable<Instruction> ParseNameConstant(NameConstantToken nameConstantToken, TokenList tokenList,
         InstructionSet instructionSet, Dictionary<string, int> variables)
     {
         if (tokenList.GetTokenOption<EquateToken>(1).HasValue())
         {
-            var numberValueToken = tokenList.GetTokenOption<NumberValueToken>(2)
-                .OrElseThrow(new InstructionParseException("equate instruction missing value"));
+            var tokenListValue = new TokenList(tokenList.Slice(2).Tokens
+                .Select(token => ReplaceNameConstantWithVariableValue(token, variables))
+                .ToList());
+            var expression = arithmeticExpressionParser.Parse(tokenListValue);
 
-            variables[nameConstantToken.Name] = numberValueToken.Value;
+            variables[nameConstantToken.Name] = expression.Evaluate();
 
             yield break;
         }
 
-        var parameterTokenLists = tokenList.Slice(1).Split(t => t is CommaToken);
+        var parameterTokenLists = tokenList.Slice(1).Split(t => t is CommaToken)
+            .Select(list =>
+                new TokenList(list.Tokens.Select(token => ReplaceNameConstantWithVariableValue(token, variables))
+                    .ToList()));
         var parameters = parameterTokenLists.Select(arithmeticExpressionParser.Parse)
             .Select(expression => expression.Evaluate()).ToList();
 
         var instructionOpCode = instructionSet[nameConstantToken.Name];
 
         yield return new Mnemonic(nameConstantToken.Name, instructionOpCode, parameters);
+    }
+
+    private static Token ReplaceNameConstantWithVariableValue(Token token, Dictionary<string, int> variables)
+    {
+        if (token is NameConstantToken nameConstantToken &&
+            variables.TryGetValue(nameConstantToken.Name, out var value))
+        {
+            return new NumberValueToken(value);
+        }
+
+        return token;
     }
 }

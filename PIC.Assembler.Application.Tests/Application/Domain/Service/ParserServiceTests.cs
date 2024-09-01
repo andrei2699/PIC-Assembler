@@ -233,11 +233,11 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithNameConstantThatIsNotInInstructionSet_ThenThrowException()
     {
-        var instructions = _parserService.Parse(new List<TokenList>
+        var func = () => _parserService.Parse(new List<TokenList>
                 { new([new NameConstantToken("INSTRUCTION")]) },
-            new InstructionSet());
+            new InstructionSet()).ToList();
 
-        instructions.Should().BeEmpty();
+        func.Should().Throw<KeyNotFoundException>();
     }
 
     [Fact]
@@ -438,6 +438,103 @@ public class ParserServiceTests
             }).ToList();
 
         func.Should().Throw<InstructionParseException>();
+    }
+
+    #endregion
+
+    # region Equate Replacements
+
+    [Fact]
+    public void GivenTokenListWithOneEquateWithNothingToReplace_ThenReturnEmptyList()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+                { new([new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(3)]) },
+            new InstructionSet());
+
+        instructions.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GivenTokenListWithOneEquate_ThenReturnInstructionListWithReplacedValues()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+        {
+            new([new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(3)]),
+            new([new NameConstantToken("INSTRUCTION"), new NameConstantToken("VARIABLE")])
+        }, new InstructionSet
+        {
+            { "INSTRUCTION", "0" }
+        }).ToList();
+
+        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3])]);
+    }
+
+    [Fact]
+    public void GivenTokenListWithOneEquateWithExpression_ThenReturnInstructionListWithReplacedValues()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+        {
+            new([
+                new NameConstantToken("VARIABLE"), new EquateToken(), new OpenParenthesisToken(),
+                new NumberValueToken(3), new LeftShiftToken(), new NumberValueToken(1), new ClosedParenthesisToken()
+            ]),
+            new([new NameConstantToken("INSTRUCTION"), new NameConstantToken("VARIABLE")])
+        }, new InstructionSet
+        {
+            { "INSTRUCTION", "0" }
+        }).ToList();
+
+        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3 << 1])]);
+    }
+
+    [Fact]
+    public void GivenTokenListWithEquateWithExpressionsWithUnknownVariable_ThenThrowInstructionParseException()
+    {
+        var func = () => _parserService.Parse(new List<TokenList>
+        {
+            new([
+                new NameConstantToken("VAR"), new EquateToken(), new OpenParenthesisToken(),
+                new NameConstantToken("UNKNOWN"), new LeftShiftToken(), new NumberValueToken(1),
+                new ClosedParenthesisToken()
+            ]),
+            new([
+                new NameConstantToken("INSTRUCTION"), new NameConstantToken("VAR")
+            ])
+        }, new InstructionSet
+        {
+            { "INSTRUCTION", "0" }
+        }).ToList();
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenTokenListWithMultipleEquateWithExpressions_ThenReturnInstructionListWithReplacedValues()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+        {
+            new([
+                new NameConstantToken("VAR1"), new EquateToken(), new NumberValueToken(2)
+            ]),
+            new([
+                new NameConstantToken("VAR2"), new EquateToken(), new OpenParenthesisToken(),
+                new NameConstantToken("VAR1"), new LeftShiftToken(), new NumberValueToken(1),
+                new ClosedParenthesisToken()
+            ]),
+            new([
+                new NameConstantToken("VAR3"), new EquateToken(), new NameConstantToken("VAR1"), new PlusToken(),
+                new NameConstantToken("VAR2")
+            ]),
+            new([
+                new NameConstantToken("INSTRUCTION"), new NameConstantToken("VAR1"), new CommaToken(),
+                new NameConstantToken("VAR2"), new CommaToken(), new NameConstantToken("VAR3")
+            ])
+        }, new InstructionSet
+        {
+            { "INSTRUCTION", "0" }
+        }).ToList();
+
+        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [2, 2 << 1, 2 + (2 << 1)])]);
     }
 
     #endregion
