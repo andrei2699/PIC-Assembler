@@ -1,6 +1,6 @@
 namespace PIC.Assembler.Application.Domain.Model.Instructions;
 
-public class InstructionSet
+public record InstructionSet
 {
     private readonly Dictionary<Tuple<string, int>, InstructionDefinition> _instructions = new();
 

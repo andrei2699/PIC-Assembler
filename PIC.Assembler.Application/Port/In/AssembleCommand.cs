@@ -1,3 +1,3 @@
 namespace PIC.Assembler.Application.Port.In;
 
-public record AssembleCommand(string InputFilepath, string OutputFilepath);
+public record AssembleCommand(string ConfigFilepath, string InputFilepath, string OutputFilepath);

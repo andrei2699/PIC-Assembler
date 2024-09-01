@@ -1,4 +1,5 @@
 using Moq;
+using PIC.Assembler.Application.Domain.Model;
 using PIC.Assembler.Application.Domain.Model.Instructions;
 using PIC.Assembler.Application.Domain.Model.Tokens;
 using PIC.Assembler.Application.Domain.Service;
@@ -9,6 +10,7 @@ namespace PIC.Assembler.Application.Tests.Application.Domain.Service;
 
 public class AssembleServiceTests
 {
+    private readonly Mock<IConfigLoader> _configLoader = new();
     private readonly Mock<ITokenizer> _tokenizerMock = new();
     private readonly Mock<IParser> _parserMock = new();
     private readonly Mock<IHexWriter> _hexWriter = new();
@@ -16,7 +18,8 @@ public class AssembleServiceTests
 
     public AssembleServiceTests()
     {
-        _assembleService = new AssembleService(_tokenizerMock.Object, _parserMock.Object, _hexWriter.Object);
+        _assembleService = new AssembleService(_configLoader.Object, _tokenizerMock.Object, _parserMock.Object,
+            _hexWriter.Object);
     }
 
     [Fact]
@@ -24,12 +27,15 @@ public class AssembleServiceTests
     {
         var tokenLists = new List<TokenList> { new([new EndToken()]) };
         var instructions = new List<Instruction> { new EndInstruction() };
+        var instructionSet = new InstructionSet();
+        _configLoader.Setup(x => x.Load("config.json"))
+            .Returns(new MicrocontrollerConfig(8, 8, instructionSet));
         _tokenizerMock.Setup(x => x.Tokenize("input.asm"))
             .Returns(tokenLists);
-        _parserMock.Setup(x => x.Parse(tokenLists, new InstructionSet()))
+        _parserMock.Setup(x => x.Parse(tokenLists, instructionSet))
             .Returns(instructions);
 
-        _assembleService.Assemble(new AssembleCommand("input.asm", "output.hex"));
+        _assembleService.Assemble(new AssembleCommand("config.json","input.asm", "output.hex"));
 
         _hexWriter.Verify(x => x.Write(instructions, "output.hex"), Times.Once);
     }

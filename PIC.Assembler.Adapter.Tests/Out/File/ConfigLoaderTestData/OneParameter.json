@@ -1,0 +1,15 @@
+{
+  "bits": 8,
+  "opcode": 12,
+  "instructions": [
+    {
+      "name": "ONE-PARAMETER",
+      "parameters": [
+        {
+          "name": "f"
+        }
+      ],
+      "opcode": "00001111ffff"
+    }
+  ]
+}

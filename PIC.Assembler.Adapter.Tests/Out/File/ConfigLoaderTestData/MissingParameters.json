@@ -1,0 +1,10 @@
+{
+  "bits": 8,
+  "opcode": 12,
+  "instructions": [
+    {
+      "name": "NO-PARAMETERS",
+      "opcode": "000011110000"
+    }
+  ]
+}

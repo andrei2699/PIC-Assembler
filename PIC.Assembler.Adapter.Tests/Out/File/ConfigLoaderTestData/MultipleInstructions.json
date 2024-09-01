@@ -1,0 +1,18 @@
+{
+  "bits": 8,
+  "opcode": 12,
+  "instructions": [
+    {
+      "name": "INSTRUCTION1",
+      "parameters": [
+      ],
+      "opcode": "000011110000"
+    },
+    {
+      "name": "INSTRUCTION2",
+      "parameters": [
+      ],
+      "opcode": "0000 0000 0000"
+    }
+  ]
+}

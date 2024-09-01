@@ -1,0 +1,18 @@
+{
+  "bits": 8,
+  "opcode": 12,
+  "instructions": [
+    {
+      "name": "TWO-PARAMETERS",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "s"
+        }
+      ],
+      "opcode": "0000ffffssss"
+    }
+  ]
+}
