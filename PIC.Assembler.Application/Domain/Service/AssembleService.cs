@@ -3,7 +3,12 @@ using PIC.Assembler.Application.Port.Out;
 
 namespace PIC.Assembler.Application.Domain.Service;
 
-public class AssembleService(IConfigLoader configLoader, ITokenizer tokenizer, IParser parser, IHexWriter hexWriter)
+public class AssembleService(
+    IConfigLoader configLoader,
+    ITokenizer tokenizer,
+    IParser parser,
+    ILinker linker,
+    IHexWriter hexWriter)
     : IAssembleUseCase
 {
     public void Assemble(AssembleCommand command)
@@ -12,7 +17,8 @@ public class AssembleService(IConfigLoader configLoader, ITokenizer tokenizer, I
 
         var tokenLists = tokenizer.Tokenize(command.InputFilepath);
         var instructions = parser.Parse(tokenLists, config.InstructionSet);
-        
-        hexWriter.Write(instructions, command.OutputFilepath);
+        var addressableInstructions = linker.Link(instructions);
+
+        hexWriter.Write(addressableInstructions, command.OutputFilepath);
     }
 }

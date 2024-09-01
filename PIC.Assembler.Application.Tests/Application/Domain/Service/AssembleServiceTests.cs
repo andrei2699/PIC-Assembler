@@ -13,13 +13,14 @@ public class AssembleServiceTests
     private readonly Mock<IConfigLoader> _configLoader = new();
     private readonly Mock<ITokenizer> _tokenizerMock = new();
     private readonly Mock<IParser> _parserMock = new();
+    private readonly Mock<ILinker> _linkerMock = new();
     private readonly Mock<IHexWriter> _hexWriter = new();
     private readonly AssembleService _assembleService;
 
     public AssembleServiceTests()
     {
         _assembleService = new AssembleService(_configLoader.Object, _tokenizerMock.Object, _parserMock.Object,
-            _hexWriter.Object);
+            _linkerMock.Object, _hexWriter.Object);
     }
 
     [Fact]
@@ -27,6 +28,7 @@ public class AssembleServiceTests
     {
         var tokenLists = new List<TokenList> { new([new EndToken()]) };
         var instructions = new List<Instruction> { new EndInstruction() };
+        var addressableInstructions = new List<AddressableInstruction> { new(0, 0) };
         var instructionSet = new InstructionSet();
         _configLoader.Setup(x => x.Load("config.json"))
             .Returns(new MicrocontrollerConfig(8, 8, instructionSet));
@@ -34,9 +36,11 @@ public class AssembleServiceTests
             .Returns(tokenLists);
         _parserMock.Setup(x => x.Parse(tokenLists, instructionSet))
             .Returns(instructions);
+        _linkerMock.Setup(x => x.Link(instructions))
+            .Returns(addressableInstructions);
 
-        _assembleService.Assemble(new AssembleCommand("config.json","input.asm", "output.hex"));
+        _assembleService.Assemble(new AssembleCommand("config.json", "input.asm", "output.hex"));
 
-        _hexWriter.Verify(x => x.Write(instructions, "output.hex"), Times.Once);
+        _hexWriter.Verify(x => x.Write(addressableInstructions, "output.hex"), Times.Once);
     }
 }
