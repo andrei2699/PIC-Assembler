@@ -1,6 +1,6 @@
 namespace PIC.Assembler.Common;
 
-public class Option<T> where T : class
+public record Option<T> where T : class
 {
     private readonly T? _t;
 
@@ -16,7 +16,7 @@ public class Option<T> where T : class
 
     public static Option<T> None()
     {
-        return new Option<T>(null);
+        return new Option<T>((T?)null);
     }
 
     public bool HasValue()
