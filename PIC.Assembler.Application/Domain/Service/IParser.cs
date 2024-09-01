@@ -5,5 +5,5 @@ namespace PIC.Assembler.Application.Domain.Service;
 
 public interface IParser
 {
-    IEnumerable<Instruction> Parse(IEnumerable<TokenList> tokenLists);
+    IEnumerable<Instruction> Parse(IEnumerable<TokenList> tokenLists, InstructionSet instructionSet);
 }

@@ -16,7 +16,7 @@ public class ParserServiceTests
 
     public ParserServiceTests()
     {
-        _parserService = new ParserService(_tokenizerMock.Object);
+        _parserService = new ParserService(_tokenizerMock.Object, new ArithmeticExpressionParser());
     }
 
     #region NoTokens
@@ -24,7 +24,7 @@ public class ParserServiceTests
     [Fact]
     public void GivenEmptyTokenList_ThenReturnNoElements()
     {
-        var instructions = _parserService.Parse(new List<TokenList>());
+        var instructions = _parserService.Parse(new List<TokenList>(), new InstructionSet());
 
         instructions.Should().BeEmpty();
     }
@@ -32,7 +32,7 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithoutTokens_ThenReturnNoElements()
     {
-        var instructions = _parserService.Parse(new List<TokenList> { new([]) });
+        var instructions = _parserService.Parse(new List<TokenList> { new([]) }, new InstructionSet());
 
         instructions.Should().BeEmpty();
     }
@@ -45,7 +45,7 @@ public class ParserServiceTests
     [MemberData(nameof(GetInvalidTokenAtBeginning))]
     public void GivenInvalidTokenAtBeginningOfList_ThenThrowInstructionParseException(Token token)
     {
-        var func = () => _parserService.Parse(new List<TokenList> { new([token]) }).ToList();
+        var func = () => _parserService.Parse(new List<TokenList> { new([token]) }, new InstructionSet()).ToList();
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -74,7 +74,7 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithEndToken_ThenReturnEndInstruction()
     {
-        var instructions = _parserService.Parse(new List<TokenList> { new([new EndToken()]) });
+        var instructions = _parserService.Parse(new List<TokenList> { new([new EndToken()]) }, new InstructionSet());
 
         instructions.Should().Equal(new EndInstruction());
     }
@@ -86,7 +86,8 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithOrgTokenWithoutValue_ThenThrowInstructionParseException()
     {
-        var func = () => _parserService.Parse(new List<TokenList> { new([new OrgToken()]) }).ToList();
+        var func = () =>
+            _parserService.Parse(new List<TokenList> { new([new OrgToken()]) }, new InstructionSet()).ToList();
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -95,7 +96,8 @@ public class ParserServiceTests
     public void GivenTokenListWithOrgTokenWithOtherToken_ThenReturnOrgInstruction()
     {
         var func = () =>
-            _parserService.Parse(new List<TokenList> { new([new OrgToken(), new StringValueToken("abc")]) }).ToList();
+            _parserService.Parse(new List<TokenList> { new([new OrgToken(), new StringValueToken("abc")]) },
+                new InstructionSet()).ToList();
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -103,8 +105,8 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithOrgTokenWithNumberValue_ThenReturnOrgInstruction()
     {
-        var instructions = _parserService.Parse(new List<TokenList>
-            { new([new OrgToken(), new NumberValueToken(1)]) });
+        var instructions = _parserService.Parse(new List<TokenList> { new([new OrgToken(), new NumberValueToken(1)]) },
+            new InstructionSet());
 
         instructions.Should().Equal(new OrgInstruction(1));
     }
@@ -116,7 +118,8 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithIncludeTokenWithoutStringValueToken_ThenThrowInstructionParseException()
     {
-        var func = () => _parserService.Parse(new List<TokenList> { new([new IncludeToken()]) }).ToList();
+        var func = () => _parserService.Parse(new List<TokenList> { new([new IncludeToken()]) }, new InstructionSet())
+            .ToList();
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -126,7 +129,8 @@ public class ParserServiceTests
     public void GivenTokenListWithIncludeTokenWithOtherToken_ThenThrowInstructionParseException()
     {
         var func = () =>
-            _parserService.Parse(new List<TokenList> { new([new IncludeToken(), new NumberValueToken(4)]) }).ToList();
+            _parserService.Parse(new List<TokenList> { new([new IncludeToken(), new NumberValueToken(4)]) },
+                new InstructionSet()).ToList();
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -138,7 +142,8 @@ public class ParserServiceTests
             .Returns(new List<TokenList> { new([new OrgToken(), new NumberValueToken(4)]) });
 
         var instructions = _parserService.Parse(new List<TokenList>
-            { new([new IncludeToken(), new StringValueToken("file.asm")]), new([new EndToken()]) });
+                { new([new IncludeToken(), new StringValueToken("file.asm")]), new([new EndToken()]) },
+            new InstructionSet());
 
         instructions.Should().Equal(new OrgInstruction(4), new EndInstruction());
     }
@@ -161,7 +166,7 @@ public class ParserServiceTests
             new([new IncludeToken(), new StringValueToken("file3.asm")]),
             new([new OrgToken(), new NumberValueToken(4)]),
             new([new EndToken()])
-        });
+        }, new InstructionSet());
 
         instructions.Should().Equal(new OrgInstruction(1), new OrgInstruction(2), new OrgInstruction(3),
             new OrgInstruction(4), new EndInstruction());
@@ -191,7 +196,7 @@ public class ParserServiceTests
             new([new IncludeToken(), new StringValueToken("file3.asm")]),
             new([new OrgToken(), new NumberValueToken(4)]),
             new([new EndToken()])
-        });
+        }, new InstructionSet());
 
         instructions.Should().Equal(new OrgInstruction(1), new OrgInstruction(2), new OrgInstruction(3),
             new OrgInstruction(4), new EndInstruction());
@@ -205,7 +210,8 @@ public class ParserServiceTests
     public void GivenTokenListWithLabelTokenWithOtherToken_ThenThrowInstructionParseException()
     {
         var func = () => _parserService
-            .Parse(new List<TokenList> { new([new LabelToken("Label"), new StringValueToken("abc")]) })
+            .Parse(new List<TokenList> { new([new LabelToken("Label"), new StringValueToken("abc")]) },
+                new InstructionSet())
             .ToList();
 
         func.Should().Throw<InstructionParseException>();
@@ -214,9 +220,224 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithLabelTokenWithoutOtherToken_ThenReturnLabelInstruction()
     {
-        var instructions = _parserService.Parse(new List<TokenList> { new([new LabelToken("Label")]) });
+        var instructions =
+            _parserService.Parse(new List<TokenList> { new([new LabelToken("Label")]) }, new InstructionSet());
 
         instructions.Should().Equal(new LabelInstruction("Label"));
+    }
+
+    #endregion
+
+    #region Mnemonics
+
+    [Fact]
+    public void GivenTokenListWithNameConstantThatIsNotInInstructionSet_ThenThrowException()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+                { new([new NameConstantToken("INSTRUCTION")]) },
+            new InstructionSet());
+
+        instructions.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GivenTokenListWithNameConstant_ThenReturnMnemonicWithoutParameters()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+                { new([new NameConstantToken("INSTRUCTION")]) },
+            new InstructionSet
+            {
+                { "INSTRUCTION", "0" }
+            }).ToList();
+
+        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [])]);
+    }
+
+    [Fact]
+    public void GivenTokenListWithMultipleNameConstant_ThenReturnMnemonicListWithoutParameters()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+            {
+                new([new NameConstantToken("INSTRUCTION1")]),
+                new([new NameConstantToken("INSTRUCTION2")]),
+                new([new NameConstantToken("INSTRUCTION3")]),
+            },
+            new InstructionSet
+            {
+                { "INSTRUCTION1", "00" },
+                { "INSTRUCTION2", "01" },
+                { "INSTRUCTION3", "11" },
+            }).ToList();
+
+        instructions.Should().BeEquivalentTo([
+            new Mnemonic("INSTRUCTION1", "00", []), new Mnemonic("INSTRUCTION2", "01", []),
+            new Mnemonic("INSTRUCTION3", "11", []),
+        ], options => options.RespectingRuntimeTypes());
+    }
+
+    [Fact]
+    public void GivenTokenListWithNameConstantAndNumberToken_ThenReturnMnemonicWithOneParameter()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+                { new([new NameConstantToken("INSTRUCTION"), new NumberValueToken(3)]) },
+            new InstructionSet
+            {
+                { "INSTRUCTION", "0" }
+            }).ToList();
+
+        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3])]);
+    }
+
+    [Fact]
+    public void GivenTokenListWithNameConstantAndTwoNumberTokensSeparatedByComma_ThenReturnMnemonicWithTwoParameters()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+            {
+                new([
+                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(3), new CommaToken(),
+                    new NumberValueToken(5)
+                ])
+            },
+            new InstructionSet
+            {
+                { "INSTRUCTION", "0" }
+            }).ToList();
+
+        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3, 5])]);
+    }
+
+    [Fact]
+    public void
+        GivenTokenListWithNameConstantAndMultipleNumberTokensSeparatedByComma_ThenReturnMnemonicWithMultipleParameters()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+            {
+                new([
+                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(3), new CommaToken(),
+                    new NumberValueToken(5), new CommaToken(), new NumberValueToken(6), new CommaToken(),
+                    new NumberValueToken(10)
+                ])
+            },
+            new InstructionSet
+            {
+                { "INSTRUCTION", "0" }
+            }).ToList();
+
+        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3, 5, 6, 10])]);
+    }
+
+    [Fact]
+    public void GivenTokenListWithNameConstantAndExpression_ThenReturnMnemonicWithOneParameter()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+            {
+                new([
+                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(1), new LeftShiftToken(),
+                    new NumberValueToken(8)
+                ])
+            },
+            new InstructionSet
+            {
+                { "INSTRUCTION", "0" }
+            }).ToList();
+
+        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [1 << 8])]);
+    }
+
+    [Fact]
+    public void GivenTokenListWithNameConstantAndExpressionWithParenthesis_ThenReturnMnemonicWithOneParameter()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+            {
+                new([
+                    new NameConstantToken("INSTRUCTION"), new OpenParenthesisToken(), new NumberValueToken(1),
+                    new LeftShiftToken(), new NumberValueToken(8), new ClosedParenthesisToken()
+                ])
+            },
+            new InstructionSet
+            {
+                { "INSTRUCTION", "0" }
+            }).ToList();
+
+        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [1 << 8])]);
+    }
+
+
+    [Fact]
+    public void GivenTokenListWithNameConstantAndTwoExpressionsSeparatedByComma_ThenReturnMnemonicWithTwoParameters()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+            {
+                new([
+                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(6), new BarToken(),
+                    new NumberValueToken(8), new CommaToken(),
+                    new NumberValueToken(5), new RightShiftToken(), new NumberValueToken(1)
+                ])
+            },
+            new InstructionSet
+            {
+                { "INSTRUCTION", "0" }
+            }).ToList();
+
+        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [6 | 8, 5 >> 1])]);
+    }
+
+    [Fact]
+    public void
+        GivenTokenListWithNameConstantAndMultipleExpressionsSeparatedByComma_ThenReturnMnemonicWithMultipleParameters()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+            {
+                new([
+                    new NameConstantToken("INSTRUCTION"), new OpenParenthesisToken(), new NumberValueToken(3),
+                    new ClosedParenthesisToken(), new CommaToken(), new NumberValueToken(5), new AmpersandToken(),
+                    new NumberValueToken(3), new CommaToken(), new NumberValueToken(6), new XorToken(),
+                    new NumberValueToken(7), new CommaToken(), new NumberValueToken(10), new PlusToken(),
+                    new NumberValueToken(9)
+                ])
+            },
+            new InstructionSet
+            {
+                { "INSTRUCTION", "0" }
+            }).ToList();
+
+        instructions.Should().BeEquivalentTo([new Mnemonic("INSTRUCTION", "0", [3, 5 & 3, 6 ^ 7, 10 + 9])]);
+    }
+
+    [Fact]
+    public void GivenTokenListWithNameConstantAndTwoNumberTokensWithoutComma_ThenThrowInstructionParseException()
+    {
+        var func = () => _parserService.Parse(new List<TokenList>
+            {
+                new([
+                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(3), new NumberValueToken(5)
+                ])
+            },
+            new InstructionSet
+            {
+                { "INSTRUCTION", "0" }
+            }).ToList();
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void
+        GivenTokenListWithNameConstantAndMultipleNumberTokensWithoutComma_ThenThrowInstructionParseException()
+    {
+        var func = () => _parserService.Parse(new List<TokenList>
+            {
+                new([
+                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(3), new CommaToken(),
+                    new NumberValueToken(5), new CommaToken(), new NumberValueToken(6), new NumberValueToken(10)
+                ])
+            },
+            new InstructionSet
+            {
+                { "INSTRUCTION", "0" }
+            }).ToList();
+
+        func.Should().Throw<InstructionParseException>();
     }
 
     #endregion

@@ -26,7 +26,7 @@ public class AssembleServiceTests
         var instructions = new List<Instruction> { new EndInstruction() };
         _tokenizerMock.Setup(x => x.Tokenize("input.asm"))
             .Returns(tokenLists);
-        _parserMock.Setup(x => x.Parse(tokenLists))
+        _parserMock.Setup(x => x.Parse(tokenLists, new InstructionSet()))
             .Returns(instructions);
 
         _assembleService.Assemble(new AssembleCommand("input.asm", "output.hex"));

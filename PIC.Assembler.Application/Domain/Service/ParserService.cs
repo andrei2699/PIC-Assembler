@@ -5,20 +5,18 @@ using PIC.Assembler.Application.Port.Out;
 
 namespace PIC.Assembler.Application.Domain.Service;
 
-public class ParserService(ITokenizer tokenizer) : IParser
+public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arithmeticExpressionParser) : IParser
 {
-    public IEnumerable<Instruction> Parse(IEnumerable<TokenList> tokenLists)
+    public IEnumerable<Instruction> Parse(IEnumerable<TokenList> tokenLists, InstructionSet instructionSet)
     {
-        return tokenLists.SelectMany(Parse);
+        var variables = new Dictionary<string, int>();
+
+        return tokenLists.Where(l => l.Tokens.Count > 0).SelectMany(list => Parse(list, instructionSet, variables));
     }
 
-    private IEnumerable<Instruction> Parse(TokenList tokenList)
+    private IEnumerable<Instruction> Parse(TokenList tokenList, InstructionSet instructionSet,
+        Dictionary<string, int> variables)
     {
-        if (tokenList.Tokens.Count == 0)
-        {
-            yield break;
-        }
-
         switch (tokenList.Tokens[0])
         {
             case EndToken:
@@ -31,7 +29,7 @@ public class ParserService(ITokenizer tokenizer) : IParser
                 break;
             case LabelToken labelToken:
             {
-                foreach (var instruction in ParseLabelInstruction(tokenList, 1, labelToken))
+                foreach (var instruction in ParseLabelInstruction(tokenList, labelToken))
                 {
                     yield return instruction;
                 }
@@ -40,7 +38,16 @@ public class ParserService(ITokenizer tokenizer) : IParser
             }
             case IncludeToken:
             {
-                foreach (var instruction in ParseIncludeInstruction(tokenList, 1))
+                foreach (var instruction in ParseIncludeInstruction(tokenList, instructionSet))
+                {
+                    yield return instruction;
+                }
+
+                break;
+            }
+            case NameConstantToken nameConstantToken:
+            {
+                foreach (var instruction in ParseNameConstant(nameConstantToken, tokenList, instructionSet, variables))
                 {
                     yield return instruction;
                 }
@@ -54,10 +61,10 @@ public class ParserService(ITokenizer tokenizer) : IParser
         }
     }
 
-    private IEnumerable<Instruction> ParseIncludeInstruction(TokenList tokenList, int index)
+    private IEnumerable<Instruction> ParseIncludeInstruction(TokenList tokenList, InstructionSet instructionSet)
     {
-        var option = tokenList.GetTokenOption<StringValueToken>(index)
-            .Map(t => Parse(tokenizer.Tokenize(t.Value)));
+        var option = tokenList.GetTokenOption<StringValueToken>(1)
+            .Map(t => Parse(tokenizer.Tokenize(t.Value), instructionSet));
 
         if (!option.HasValue())
         {
@@ -70,14 +77,37 @@ public class ParserService(ITokenizer tokenizer) : IParser
         }
     }
 
-    private static IEnumerable<Instruction> ParseLabelInstruction(TokenList tokenList, int index, LabelToken labelToken)
+    private static IEnumerable<Instruction> ParseLabelInstruction(TokenList tokenList, LabelToken labelToken)
     {
-        var tokenOption = tokenList.GetTokenOption<Token>(index);
+        var tokenOption = tokenList.GetTokenOption<Token>(1);
         if (tokenOption.HasValue())
         {
             throw new InstructionParseException("label instruction must be on separate line");
         }
 
         yield return new LabelInstruction(labelToken.Name);
+    }
+
+
+    private IEnumerable<Instruction> ParseNameConstant(NameConstantToken nameConstantToken, TokenList tokenList,
+        InstructionSet instructionSet, Dictionary<string, int> variables)
+    {
+        if (tokenList.GetTokenOption<EquateToken>(1).HasValue())
+        {
+            var numberValueToken = tokenList.GetTokenOption<NumberValueToken>(2)
+                .OrElseThrow(new InstructionParseException("equate instruction missing value"));
+
+            variables[nameConstantToken.Name] = numberValueToken.Value;
+
+            yield break;
+        }
+
+        var parameterTokenLists = tokenList.Slice(1).Split(t => t is CommaToken);
+        var parameters = parameterTokenLists.Select(arithmeticExpressionParser.Parse)
+            .Select(expression => expression.Evaluate()).ToList();
+
+        var instructionOpCode = instructionSet[nameConstantToken.Name];
+
+        yield return new Mnemonic(nameConstantToken.Name, instructionOpCode, parameters);
     }
 }

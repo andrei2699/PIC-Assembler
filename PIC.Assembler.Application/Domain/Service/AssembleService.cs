@@ -1,3 +1,4 @@
+using PIC.Assembler.Application.Domain.Model.Instructions;
 using PIC.Assembler.Application.Port.In;
 using PIC.Assembler.Application.Port.Out;
 
@@ -14,6 +15,7 @@ public class AssembleService(ITokenizer tokenizer, IParser parser, IHexWriter he
         // 5. replace constants with values
         // 6. write to output file in hex format
 
-        hexWriter.Write(parser.Parse(tokenizer.Tokenize(command.InputFilepath)), command.OutputFilepath);
+        hexWriter.Write(parser.Parse(tokenizer.Tokenize(command.InputFilepath), new InstructionSet()),
+            command.OutputFilepath);
     }
 }
