@@ -1,0 +1,7 @@
+VAR1 EQU 6
+VAR2 EQU 0
+
+START:
+    ADDWF VAR1, VAR2
+
+    END

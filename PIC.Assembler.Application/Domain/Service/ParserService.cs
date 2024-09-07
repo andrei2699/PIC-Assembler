@@ -106,7 +106,7 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
                 new TokenList(list.Tokens.Select(token => ReplaceNameConstantWithVariableValue(token, variables))
                     .ToList())).ToList();
         var mnemonicParameters = GetMnemonicParameters(parameterTokenLists);
-        
+
         var instructionDefinition = instructionSet.GetDefinition(nameConstantToken.Name, mnemonicParameters.Count);
 
         yield return new Mnemonic(instructionDefinition, mnemonicParameters);
@@ -131,7 +131,7 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
         if (token is NameConstantToken nameConstantToken &&
             variables.TryGetValue(nameConstantToken.Name, out var value))
         {
-            return new NumberValueToken(value);
+            return new NumberValueToken(value, nameConstantToken.FileInformation);
         }
 
         return token;

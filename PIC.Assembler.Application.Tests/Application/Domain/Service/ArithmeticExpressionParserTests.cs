@@ -9,12 +9,13 @@ namespace PIC.Assembler.Application.Tests.Application.Domain.Service;
 
 public class ArithmeticExpressionParserTests
 {
+    private static readonly FileInformation FileInformation = new("file-path");
     private readonly ArithmeticExpressionParser _parser = new();
 
     [Fact]
     public void GivenNumberToken_WhenEvaluate_ThenComputedValue()
     {
-        var arithmeticExpression = _parser.Parse(new TokenList([new NumberValueToken(123)]));
+        var arithmeticExpression = _parser.Parse(new TokenList([new NumberValueToken(123, FileInformation)]));
 
         arithmeticExpression.Evaluate().Should().Be(123);
     }
@@ -24,7 +25,9 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenNegativeNumberToken_WhenEvaluate_ThenComputedValue()
     {
-        var arithmeticExpression = _parser.Parse(new TokenList([new MinusToken(), new NumberValueToken(123)]));
+        var arithmeticExpression = _parser.Parse(new TokenList([
+            new MinusToken(FileInformation), new NumberValueToken(123, FileInformation)
+        ]));
 
         arithmeticExpression.Evaluate().Should().Be(-123);
     }
@@ -33,7 +36,8 @@ public class ArithmeticExpressionParserTests
     public void GivenNegativeNumberTokenMultipleTimes_WhenEvaluate_ThenComputedValue()
     {
         var arithmeticExpression = _parser.Parse(new TokenList([
-            new MinusToken(), new MinusToken(), new MinusToken(), new NumberValueToken(123)
+            new MinusToken(FileInformation), new MinusToken(FileInformation), new MinusToken(FileInformation),
+            new NumberValueToken(123, FileInformation)
         ]));
 
         arithmeticExpression.Evaluate().Should().Be(-123);
@@ -47,7 +51,10 @@ public class ArithmeticExpressionParserTests
     public void GivenAddition_WhenEvaluate_ThenReturnComputedValue()
     {
         var arithmeticExpression =
-            _parser.Parse(new TokenList([new NumberValueToken(1), new PlusToken(), new NumberValueToken(6)]));
+            _parser.Parse(new TokenList([
+                new NumberValueToken(1, FileInformation), new PlusToken(FileInformation),
+                new NumberValueToken(6, FileInformation)
+            ]));
 
         arithmeticExpression.Evaluate().Should().Be(7);
     }
@@ -55,7 +62,7 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenAdditionWithoutOperands_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new PlusToken()]));
+        var func = () => _parser.Parse(new TokenList([new PlusToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -63,7 +70,8 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenAdditionWithoutLeftOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new PlusToken(), new NumberValueToken(2)]));
+        var func = () =>
+            _parser.Parse(new TokenList([new PlusToken(FileInformation), new NumberValueToken(2, FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -71,7 +79,8 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenAdditionWithoutRightOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new NumberValueToken(2), new PlusToken()]));
+        var func = () =>
+            _parser.Parse(new TokenList([new NumberValueToken(2, FileInformation), new PlusToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -84,7 +93,10 @@ public class ArithmeticExpressionParserTests
     public void GivenSubtraction_WhenEvaluate_ThenReturnComputedValue()
     {
         var arithmeticExpression =
-            _parser.Parse(new TokenList([new NumberValueToken(3), new MinusToken(), new NumberValueToken(1)]));
+            _parser.Parse(new TokenList([
+                new NumberValueToken(3, FileInformation), new MinusToken(FileInformation),
+                new NumberValueToken(1, FileInformation)
+            ]));
 
         arithmeticExpression.Evaluate().Should().Be(2);
     }
@@ -92,7 +104,7 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenSubtractionWithoutOperands_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new MinusToken()]));
+        var func = () => _parser.Parse(new TokenList([new MinusToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -100,7 +112,8 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenSubtractionWithoutRightOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new NumberValueToken(2), new MinusToken()]));
+        var func = () =>
+            _parser.Parse(new TokenList([new NumberValueToken(2, FileInformation), new MinusToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -113,7 +126,10 @@ public class ArithmeticExpressionParserTests
     public void GivenLeftShift_WhenEvaluate_ThenReturnComputedValue()
     {
         var arithmeticExpression =
-            _parser.Parse(new TokenList([new NumberValueToken(1), new LeftShiftToken(), new NumberValueToken(2)]));
+            _parser.Parse(new TokenList([
+                new NumberValueToken(1, FileInformation), new LeftShiftToken(FileInformation),
+                new NumberValueToken(2, FileInformation)
+            ]));
 
         arithmeticExpression.Evaluate().Should().Be(4);
     }
@@ -121,7 +137,7 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenLeftShiftWithoutOperands_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new LeftShiftToken()]));
+        var func = () => _parser.Parse(new TokenList([new LeftShiftToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -129,7 +145,10 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenLeftShiftWithoutLeftOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new LeftShiftToken(), new NumberValueToken(2)]));
+        var func = () =>
+            _parser.Parse(new TokenList([
+                new LeftShiftToken(FileInformation), new NumberValueToken(2, FileInformation)
+            ]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -137,7 +156,10 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenLeftShiftWithoutRightOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new NumberValueToken(2), new LeftShiftToken()]));
+        var func = () =>
+            _parser.Parse(new TokenList([
+                new NumberValueToken(2, FileInformation), new LeftShiftToken(FileInformation)
+            ]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -150,7 +172,10 @@ public class ArithmeticExpressionParserTests
     public void GivenRightShift_WhenEvaluate_ThenReturnComputedValue()
     {
         var arithmeticExpression =
-            _parser.Parse(new TokenList([new NumberValueToken(10), new RightShiftToken(), new NumberValueToken(1)]));
+            _parser.Parse(new TokenList([
+                new NumberValueToken(10, FileInformation), new RightShiftToken(FileInformation),
+                new NumberValueToken(1, FileInformation)
+            ]));
 
         arithmeticExpression.Evaluate().Should().Be(5);
     }
@@ -158,7 +183,7 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenRightShiftWithoutOperands_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new RightShiftToken()]));
+        var func = () => _parser.Parse(new TokenList([new RightShiftToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -166,7 +191,10 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenRightShiftWithoutLeftOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new RightShiftToken(), new NumberValueToken(2)]));
+        var func = () =>
+            _parser.Parse(new TokenList([
+                new RightShiftToken(FileInformation), new NumberValueToken(2, FileInformation)
+            ]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -174,7 +202,10 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenRightShiftWithoutRightOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new NumberValueToken(2), new RightShiftToken()]));
+        var func = () =>
+            _parser.Parse(new TokenList([
+                new NumberValueToken(2, FileInformation), new RightShiftToken(FileInformation)
+            ]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -187,7 +218,10 @@ public class ArithmeticExpressionParserTests
     public void GivenBitwiseAnd_WhenEvaluate_ThenReturnComputedValue()
     {
         var arithmeticExpression =
-            _parser.Parse(new TokenList([new NumberValueToken(3), new AmpersandToken(), new NumberValueToken(1)]));
+            _parser.Parse(new TokenList([
+                new NumberValueToken(3, FileInformation), new AmpersandToken(FileInformation),
+                new NumberValueToken(1, FileInformation)
+            ]));
 
         arithmeticExpression.Evaluate().Should().Be(1);
     }
@@ -195,7 +229,7 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenBitwiseAndWithoutOperands_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new AmpersandToken()]));
+        var func = () => _parser.Parse(new TokenList([new AmpersandToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -203,7 +237,10 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenBitwiseAndWithoutLeftOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new AmpersandToken(), new NumberValueToken(2)]));
+        var func = () =>
+            _parser.Parse(new TokenList([
+                new AmpersandToken(FileInformation), new NumberValueToken(2, FileInformation)
+            ]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -211,7 +248,10 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenBitwiseAndWithoutRightOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new NumberValueToken(2), new AmpersandToken()]));
+        var func = () =>
+            _parser.Parse(new TokenList([
+                new NumberValueToken(2, FileInformation), new AmpersandToken(FileInformation)
+            ]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -224,7 +264,10 @@ public class ArithmeticExpressionParserTests
     public void GivenBitwiseOr_WhenEvaluate_ThenReturnComputedValue()
     {
         var arithmeticExpression =
-            _parser.Parse(new TokenList([new NumberValueToken(1), new BarToken(), new NumberValueToken(2)]));
+            _parser.Parse(new TokenList([
+                new NumberValueToken(1, FileInformation), new BarToken(FileInformation),
+                new NumberValueToken(2, FileInformation)
+            ]));
 
         arithmeticExpression.Evaluate().Should().Be(3);
     }
@@ -232,7 +275,7 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenBitwiseOrWithoutOperands_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new BarToken()]));
+        var func = () => _parser.Parse(new TokenList([new BarToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -240,7 +283,8 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenBitwiseOrWithoutLeftOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new BarToken(), new NumberValueToken(2)]));
+        var func = () =>
+            _parser.Parse(new TokenList([new BarToken(FileInformation), new NumberValueToken(2, FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -248,7 +292,8 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenBitwiseOrWithoutRightOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new NumberValueToken(2), new BarToken()]));
+        var func = () =>
+            _parser.Parse(new TokenList([new NumberValueToken(2, FileInformation), new BarToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -261,7 +306,10 @@ public class ArithmeticExpressionParserTests
     public void GivenBitwiseXor_WhenEvaluate_ThenReturnComputedValue()
     {
         var arithmeticExpression =
-            _parser.Parse(new TokenList([new NumberValueToken(1), new XorToken(), new NumberValueToken(3)]));
+            _parser.Parse(new TokenList([
+                new NumberValueToken(1, FileInformation), new XorToken(FileInformation),
+                new NumberValueToken(3, FileInformation)
+            ]));
 
         arithmeticExpression.Evaluate().Should().Be(1 ^ 3);
     }
@@ -269,7 +317,7 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenBitwiseXorWithoutOperands_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new XorToken()]));
+        var func = () => _parser.Parse(new TokenList([new XorToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -277,7 +325,8 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenBitwiseXorWithoutLeftOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new XorToken(), new NumberValueToken(2)]));
+        var func = () =>
+            _parser.Parse(new TokenList([new XorToken(FileInformation), new NumberValueToken(2, FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -285,7 +334,8 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenBitwiseXorWithoutRightOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new NumberValueToken(2), new XorToken()]));
+        var func = () =>
+            _parser.Parse(new TokenList([new NumberValueToken(2, FileInformation), new XorToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -298,7 +348,7 @@ public class ArithmeticExpressionParserTests
     public void GivenBitwiseNegation_WhenEvaluate_ThenReturnComputedValue()
     {
         var arithmeticExpression =
-            _parser.Parse(new TokenList([new TildaToken(), new NumberValueToken(5)]));
+            _parser.Parse(new TokenList([new TildaToken(FileInformation), new NumberValueToken(5, FileInformation)]));
 
         arithmeticExpression.Evaluate().Should().Be(~5);
     }
@@ -309,15 +359,18 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(
-                new TokenList([new TildaToken(), new TildaToken(), new TildaToken(), new NumberValueToken(5)]));
+                new TokenList([
+                    new TildaToken(FileInformation), new TildaToken(FileInformation),
+                    new TildaToken(FileInformation), new NumberValueToken(5, FileInformation)
+                ]));
 
-        arithmeticExpression.Evaluate().Should().Be(~~~5);
+        arithmeticExpression.Evaluate().Should().Be(~5);
     }
 
     [Fact]
     public void GivenBitwiseNegationWithoutOperands_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new XorToken()]));
+        var func = () => _parser.Parse(new TokenList([new TildaToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -325,7 +378,8 @@ public class ArithmeticExpressionParserTests
     [Fact]
     public void GivenBitwiseNegationWithLeftOperand_ThenThrowInstructionParseException()
     {
-        var func = () => _parser.Parse(new TokenList([new NumberValueToken(2), new TildaToken()]));
+        var func = () =>
+            _parser.Parse(new TokenList([new NumberValueToken(2, FileInformation), new TildaToken(FileInformation)]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -339,9 +393,12 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new NumberValueToken(1), new PlusToken(), new NumberValueToken(2), new PlusToken(),
-                new NumberValueToken(3), new MinusToken(), new NumberValueToken(4), new MinusToken(),
-                new NumberValueToken(5), new PlusToken(), new NumberValueToken(8)
+                new NumberValueToken(1, FileInformation), new PlusToken(FileInformation),
+                new NumberValueToken(2, FileInformation), new PlusToken(FileInformation),
+                new NumberValueToken(3, FileInformation), new MinusToken(FileInformation),
+                new NumberValueToken(4, FileInformation), new MinusToken(FileInformation),
+                new NumberValueToken(5, FileInformation), new PlusToken(FileInformation),
+                new NumberValueToken(8, FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(1 + 2 + 3 - 4 - 5 + 8);
@@ -352,9 +409,12 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new NumberValueToken(1), new LeftShiftToken(), new NumberValueToken(2), new LeftShiftToken(),
-                new NumberValueToken(7), new RightShiftToken(), new NumberValueToken(4), new RightShiftToken(),
-                new NumberValueToken(5), new LeftShiftToken(), new NumberValueToken(8)
+                new NumberValueToken(1, FileInformation), new LeftShiftToken(FileInformation),
+                new NumberValueToken(2, FileInformation), new LeftShiftToken(FileInformation),
+                new NumberValueToken(7, FileInformation), new RightShiftToken(FileInformation),
+                new NumberValueToken(4, FileInformation), new RightShiftToken(FileInformation),
+                new NumberValueToken(5, FileInformation), new LeftShiftToken(FileInformation),
+                new NumberValueToken(8, FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(1 << 2 << 7 >> 4 >> 5 << 8);
@@ -365,9 +425,12 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new NumberValueToken(1), new PlusToken(), new NumberValueToken(2), new PlusToken(),
-                new NumberValueToken(3), new LeftShiftToken(), new NumberValueToken(4), new LeftShiftToken(),
-                new NumberValueToken(5), new PlusToken(), new NumberValueToken(8)
+                new NumberValueToken(1, FileInformation), new PlusToken(FileInformation),
+                new NumberValueToken(2, FileInformation), new PlusToken(FileInformation),
+                new NumberValueToken(3, FileInformation), new LeftShiftToken(FileInformation),
+                new NumberValueToken(4, FileInformation), new LeftShiftToken(FileInformation),
+                new NumberValueToken(5, FileInformation), new PlusToken(FileInformation),
+                new NumberValueToken(8, FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(1 + 2 + 3 << 4 << 5 + 8);
@@ -378,9 +441,12 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new NumberValueToken(1), new PlusToken(), new NumberValueToken(8), new PlusToken(),
-                new NumberValueToken(9999), new RightShiftToken(), new NumberValueToken(2), new RightShiftToken(),
-                new NumberValueToken(1), new PlusToken(), new NumberValueToken(8)
+                new NumberValueToken(1, FileInformation), new PlusToken(FileInformation),
+                new NumberValueToken(8, FileInformation), new PlusToken(FileInformation),
+                new NumberValueToken(9999, FileInformation), new RightShiftToken(FileInformation),
+                new NumberValueToken(2, FileInformation), new RightShiftToken(FileInformation),
+                new NumberValueToken(1, FileInformation), new PlusToken(FileInformation),
+                new NumberValueToken(8, FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(1 + 8 + 9999 >> 2 >> 1 + 8);
@@ -391,9 +457,12 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new NumberValueToken(999), new MinusToken(), new NumberValueToken(1), new MinusToken(),
-                new NumberValueToken(7), new LeftShiftToken(), new NumberValueToken(2), new LeftShiftToken(),
-                new NumberValueToken(7), new MinusToken(), new NumberValueToken(4)
+                new NumberValueToken(999, FileInformation), new MinusToken(FileInformation),
+                new NumberValueToken(1, FileInformation), new MinusToken(FileInformation),
+                new NumberValueToken(7, FileInformation), new LeftShiftToken(FileInformation),
+                new NumberValueToken(2, FileInformation), new LeftShiftToken(FileInformation),
+                new NumberValueToken(7, FileInformation), new MinusToken(FileInformation),
+                new NumberValueToken(4, FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(999 - 1 - 7 << 2 << 7 - 4);
@@ -404,9 +473,12 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new NumberValueToken(999), new MinusToken(), new NumberValueToken(1), new MinusToken(),
-                new NumberValueToken(7), new RightShiftToken(), new NumberValueToken(2), new RightShiftToken(),
-                new NumberValueToken(7), new MinusToken(), new NumberValueToken(4)
+                new NumberValueToken(999, FileInformation), new MinusToken(FileInformation),
+                new NumberValueToken(1, FileInformation), new MinusToken(FileInformation),
+                new NumberValueToken(7, FileInformation), new RightShiftToken(FileInformation),
+                new NumberValueToken(2, FileInformation), new RightShiftToken(FileInformation),
+                new NumberValueToken(7, FileInformation), new MinusToken(FileInformation),
+                new NumberValueToken(4, FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(999 - 1 - 7 >> 2 >> 7 - 4);
@@ -418,8 +490,10 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new NumberValueToken(1), new BarToken(), new NumberValueToken(5), new XorToken(),
-                new NumberValueToken(3), new AmpersandToken(), new NumberValueToken(7)
+                new NumberValueToken(1, FileInformation), new BarToken(FileInformation),
+                new NumberValueToken(5, FileInformation), new XorToken(FileInformation),
+                new NumberValueToken(3, FileInformation), new AmpersandToken(FileInformation),
+                new NumberValueToken(7, FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(1 | 5 ^ 3 & 7);
@@ -434,7 +508,8 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new NumberValueToken(1234), new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(1234, FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(1234);
@@ -445,9 +520,10 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new OpenParenthesisToken(), new OpenParenthesisToken(),
-                new NumberValueToken(1234), new ClosedParenthesisToken(), new ClosedParenthesisToken(),
-                new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new OpenParenthesisToken(FileInformation),
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(1234, FileInformation),
+                new ClosedParenthesisToken(FileInformation), new ClosedParenthesisToken(FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(1234);
@@ -458,7 +534,8 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new MinusToken(), new NumberValueToken(1234), new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new MinusToken(FileInformation),
+                new NumberValueToken(1234, FileInformation), new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(-1234);
@@ -470,8 +547,9 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new MinusToken(), new MinusToken(), new MinusToken(),
-                new NumberValueToken(1234), new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new MinusToken(FileInformation),
+                new MinusToken(FileInformation), new MinusToken(FileInformation),
+                new NumberValueToken(1234, FileInformation), new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(-1234);
@@ -482,8 +560,9 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new NumberValueToken(1), new PlusToken(), new NumberValueToken(2),
-                new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(1, FileInformation),
+                new PlusToken(FileInformation), new NumberValueToken(2, FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(3);
@@ -494,8 +573,9 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new NumberValueToken(3), new MinusToken(), new NumberValueToken(2),
-                new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(3, FileInformation),
+                new MinusToken(FileInformation), new NumberValueToken(2, FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(1);
@@ -506,8 +586,9 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new NumberValueToken(4), new LeftShiftToken(), new NumberValueToken(1),
-                new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(4, FileInformation),
+                new LeftShiftToken(FileInformation), new NumberValueToken(1, FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(8);
@@ -518,8 +599,9 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new NumberValueToken(10), new RightShiftToken(), new NumberValueToken(1),
-                new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(10, FileInformation),
+                new RightShiftToken(FileInformation), new NumberValueToken(1, FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(5);
@@ -530,8 +612,9 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new NumberValueToken(10), new AmpersandToken(), new NumberValueToken(1),
-                new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(10, FileInformation),
+                new AmpersandToken(FileInformation), new NumberValueToken(1, FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(10 & 1);
@@ -542,8 +625,9 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new NumberValueToken(10), new BarToken(), new NumberValueToken(1),
-                new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(10, FileInformation),
+                new BarToken(FileInformation), new NumberValueToken(1, FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(10 | 1);
@@ -554,8 +638,9 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new NumberValueToken(10), new XorToken(), new NumberValueToken(1),
-                new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(10, FileInformation),
+                new XorToken(FileInformation), new NumberValueToken(1, FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(10 ^ 1);
@@ -566,8 +651,8 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new TildaToken(), new NumberValueToken(1),
-                new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new TildaToken(FileInformation),
+                new NumberValueToken(1, FileInformation), new ClosedParenthesisToken(FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be(~1);
@@ -578,13 +663,19 @@ public class ArithmeticExpressionParserTests
     {
         var arithmeticExpression =
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new NumberValueToken(10), new PlusToken(), new NumberValueToken(5),
-                new ClosedParenthesisToken(), new LeftShiftToken(), new NumberValueToken(3), new MinusToken(),
-                new OpenParenthesisToken(), new NumberValueToken(2), new LeftShiftToken(), new NumberValueToken(1),
-                new ClosedParenthesisToken(), new PlusToken(), new OpenParenthesisToken(), new OpenParenthesisToken(),
-                new NumberValueToken(8), new RightShiftToken(), new NumberValueToken(1), new ClosedParenthesisToken(),
-                new MinusToken(), new NumberValueToken(3), new ClosedParenthesisToken(), new LeftShiftToken(),
-                new NumberValueToken(2)
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(10, FileInformation),
+                new PlusToken(FileInformation), new NumberValueToken(5, FileInformation),
+                new ClosedParenthesisToken(FileInformation), new LeftShiftToken(FileInformation),
+                new NumberValueToken(3, FileInformation), new MinusToken(FileInformation),
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(2, FileInformation),
+                new LeftShiftToken(FileInformation), new NumberValueToken(1, FileInformation),
+                new ClosedParenthesisToken(FileInformation), new PlusToken(FileInformation),
+                new OpenParenthesisToken(FileInformation), new OpenParenthesisToken(FileInformation),
+                new NumberValueToken(8, FileInformation), new RightShiftToken(FileInformation),
+                new NumberValueToken(1, FileInformation), new ClosedParenthesisToken(FileInformation),
+                new MinusToken(FileInformation), new NumberValueToken(3, FileInformation),
+                new ClosedParenthesisToken(FileInformation), new LeftShiftToken(FileInformation),
+                new NumberValueToken(2, FileInformation)
             ]));
 
         arithmeticExpression.Evaluate().Should().Be((10 + 5) << 3 - (2 << 1) + ((8 >> 1) - 3) << 2);
@@ -606,7 +697,10 @@ public class ArithmeticExpressionParserTests
     public void GivenTokenListWithMultipleNumbersWithoutOperators_ThenThrowInstructionParseException()
     {
         var func = () =>
-            _parser.Parse(new TokenList([new NumberValueToken(2), new NumberValueToken(3), new NumberValueToken(6)]));
+            _parser.Parse(new TokenList([
+                new NumberValueToken(2, FileInformation), new NumberValueToken(3, FileInformation),
+                new NumberValueToken(6, FileInformation)
+            ]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -615,7 +709,10 @@ public class ArithmeticExpressionParserTests
     public void GivenTokenListWithOneNumberWithMultipleBinaryOperators_ThenThrowInstructionParseException()
     {
         var func = () =>
-            _parser.Parse(new TokenList([new NumberValueToken(2), new PlusToken(), new PlusToken()]));
+            _parser.Parse(new TokenList([
+                new NumberValueToken(2, FileInformation), new PlusToken(FileInformation),
+                new PlusToken(FileInformation)
+            ]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -624,7 +721,9 @@ public class ArithmeticExpressionParserTests
     public void GivenTokenListStartingWithCloseParenthesis_ThenThrowInstructionParseException()
     {
         var func = () =>
-            _parser.Parse(new TokenList([new ClosedParenthesisToken(), new NumberValueToken(2)]));
+            _parser.Parse(new TokenList([
+                new ClosedParenthesisToken(FileInformation), new NumberValueToken(2, FileInformation)
+            ]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -633,7 +732,9 @@ public class ArithmeticExpressionParserTests
     public void GivenTokenListWithUnclosedParenthesis_ThenThrowInstructionParseException()
     {
         var func = () =>
-            _parser.Parse(new TokenList([new OpenParenthesisToken(), new NumberValueToken(2)]));
+            _parser.Parse(new TokenList([
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(2, FileInformation)
+            ]));
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -643,8 +744,8 @@ public class ArithmeticExpressionParserTests
     {
         var func = () =>
             _parser.Parse(new TokenList([
-                new OpenParenthesisToken(), new NumberValueToken(2), new ClosedParenthesisToken(),
-                new ClosedParenthesisToken()
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(2, FileInformation),
+                new ClosedParenthesisToken(FileInformation), new ClosedParenthesisToken(FileInformation)
             ]));
 
         func.Should().Throw<InstructionParseException>();
@@ -661,20 +762,20 @@ public class ArithmeticExpressionParserTests
 
     public static IEnumerable<object[]> GetInvalidTokenAtBeginning()
     {
-        yield return [new CharacterValueToken('c')];
-        yield return [new StringValueToken("text")];
-        yield return [new OpenParenthesisToken()];
-        yield return [new ClosedParenthesisToken()];
-        yield return [new DollarToken()];
-        yield return [new EquateToken()];
-        yield return [new EquateToken()];
-        yield return [new ConfigToken()];
-        yield return [new DefineToken()];
-        yield return [new EndToken()];
-        yield return [new IncludeToken()];
-        yield return [new LabelToken("label")];
-        yield return [new OrgToken()];
-        yield return [new CommaToken()];
+        yield return [new CharacterValueToken('c', FileInformation)];
+        yield return [new StringValueToken("text", FileInformation)];
+        yield return [new OpenParenthesisToken(FileInformation)];
+        yield return [new ClosedParenthesisToken(FileInformation)];
+        yield return [new DollarToken(FileInformation)];
+        yield return [new EquateToken(FileInformation)];
+        yield return [new EquateToken(FileInformation)];
+        yield return [new ConfigToken(FileInformation)];
+        yield return [new DefineToken(FileInformation)];
+        yield return [new EndToken(FileInformation)];
+        yield return [new IncludeToken(FileInformation)];
+        yield return [new LabelToken("label", FileInformation)];
+        yield return [new OrgToken(FileInformation)];
+        yield return [new CommaToken(FileInformation)];
     }
 
     #endregion

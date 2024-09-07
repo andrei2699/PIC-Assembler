@@ -11,6 +11,7 @@ namespace PIC.Assembler.Application.Tests.Application.Domain.Service;
 
 public class ParserServiceTests
 {
+    private static readonly FileInformation FileInformation = new("file-path");
     private readonly Mock<ITokenizer> _tokenizerMock = new();
     private readonly ParserService _parserService;
 
@@ -52,19 +53,19 @@ public class ParserServiceTests
 
     public static IEnumerable<object[]> GetInvalidTokenAtBeginning()
     {
-        yield return [new CharacterValueToken('c')];
-        yield return [new NumberValueToken(2)];
-        yield return [new StringValueToken("text")];
-        yield return [new AmpersandToken()];
-        yield return [new BarToken()];
-        yield return [new OpenParenthesisToken()];
-        yield return [new ClosedParenthesisToken()];
-        yield return [new DollarToken()];
-        yield return [new LeftShiftToken()];
-        yield return [new RightShiftToken()];
-        yield return [new MinusToken()];
-        yield return [new PlusToken()];
-        yield return [new EquateToken()];
+        yield return [new CharacterValueToken('c', FileInformation)];
+        yield return [new NumberValueToken(2, FileInformation)];
+        yield return [new StringValueToken("text", FileInformation)];
+        yield return [new AmpersandToken(FileInformation)];
+        yield return [new BarToken(FileInformation)];
+        yield return [new OpenParenthesisToken(FileInformation)];
+        yield return [new ClosedParenthesisToken(FileInformation)];
+        yield return [new DollarToken(FileInformation)];
+        yield return [new LeftShiftToken(FileInformation)];
+        yield return [new RightShiftToken(FileInformation)];
+        yield return [new MinusToken(FileInformation)];
+        yield return [new PlusToken(FileInformation)];
+        yield return [new EquateToken(FileInformation)];
     }
 
     #endregion
@@ -74,7 +75,8 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithEndToken_ThenReturnEndInstruction()
     {
-        var instructions = _parserService.Parse(new List<TokenList> { new([new EndToken()]) }, new InstructionSet());
+        var instructions = _parserService.Parse(new List<TokenList> { new([new EndToken(FileInformation)]) },
+            new InstructionSet());
 
         instructions.Should().Equal(new EndInstruction());
     }
@@ -87,7 +89,8 @@ public class ParserServiceTests
     public void GivenTokenListWithOrgTokenWithoutValue_ThenThrowInstructionParseException()
     {
         var func = () =>
-            _parserService.Parse(new List<TokenList> { new([new OrgToken()]) }, new InstructionSet()).ToList();
+            _parserService.Parse(new List<TokenList> { new([new OrgToken(FileInformation)]) }, new InstructionSet())
+                .ToList();
 
         func.Should().Throw<InstructionParseException>();
     }
@@ -96,7 +99,9 @@ public class ParserServiceTests
     public void GivenTokenListWithOrgTokenWithOtherToken_ThenReturnOrgInstruction()
     {
         var func = () =>
-            _parserService.Parse(new List<TokenList> { new([new OrgToken(), new StringValueToken("abc")]) },
+            _parserService.Parse(
+                new List<TokenList>
+                    { new([new OrgToken(FileInformation), new StringValueToken("abc", FileInformation)]) },
                 new InstructionSet()).ToList();
 
         func.Should().Throw<InstructionParseException>();
@@ -105,7 +110,8 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithOrgTokenWithNumberValue_ThenReturnOrgInstruction()
     {
-        var instructions = _parserService.Parse(new List<TokenList> { new([new OrgToken(), new NumberValueToken(1)]) },
+        var instructions = _parserService.Parse(
+            new List<TokenList> { new([new OrgToken(FileInformation), new NumberValueToken(1, FileInformation)]) },
             new InstructionSet());
 
         instructions.Should().Equal(new OrgInstruction(1));
@@ -118,7 +124,8 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithIncludeTokenWithoutStringValueToken_ThenThrowInstructionParseException()
     {
-        var func = () => _parserService.Parse(new List<TokenList> { new([new IncludeToken()]) }, new InstructionSet())
+        var func = () => _parserService
+            .Parse(new List<TokenList> { new([new IncludeToken(FileInformation)]) }, new InstructionSet())
             .ToList();
 
         func.Should().Throw<InstructionParseException>();
@@ -129,7 +136,9 @@ public class ParserServiceTests
     public void GivenTokenListWithIncludeTokenWithOtherToken_ThenThrowInstructionParseException()
     {
         var func = () =>
-            _parserService.Parse(new List<TokenList> { new([new IncludeToken(), new NumberValueToken(4)]) },
+            _parserService.Parse(
+                new List<TokenList>
+                    { new([new IncludeToken(FileInformation), new NumberValueToken(4, FileInformation)]) },
                 new InstructionSet()).ToList();
 
         func.Should().Throw<InstructionParseException>();
@@ -139,10 +148,14 @@ public class ParserServiceTests
     public void GivenTokenListWithIncludeTokenWithStringValueToken_ThenReturnInstructionFromBothFiles()
     {
         _tokenizerMock.Setup(x => x.Tokenize("file.asm"))
-            .Returns(new List<TokenList> { new([new OrgToken(), new NumberValueToken(4)]) });
+            .Returns(new List<TokenList>
+                { new([new OrgToken(FileInformation), new NumberValueToken(4, FileInformation)]) });
 
         var instructions = _parserService.Parse(new List<TokenList>
-                { new([new IncludeToken(), new StringValueToken("file.asm")]), new([new EndToken()]) },
+            {
+                new([new IncludeToken(FileInformation), new StringValueToken("file.asm", FileInformation)]),
+                new([new EndToken(FileInformation)])
+            },
             new InstructionSet());
 
         instructions.Should().Equal(new OrgInstruction(4), new EndInstruction());
@@ -153,19 +166,22 @@ public class ParserServiceTests
         GivenTokenListWithMultipleIncludeTokenWithStringValueToken_ThenReturnInstructionFromAllFilesInOrderOfInclude()
     {
         _tokenizerMock.Setup(x => x.Tokenize("file1.asm"))
-            .Returns(new List<TokenList> { new([new OrgToken(), new NumberValueToken(1)]) });
+            .Returns(new List<TokenList>
+                { new([new OrgToken(FileInformation), new NumberValueToken(1, FileInformation)]) });
         _tokenizerMock.Setup(x => x.Tokenize("file2.asm"))
-            .Returns(new List<TokenList> { new([new OrgToken(), new NumberValueToken(2)]) });
+            .Returns(new List<TokenList>
+                { new([new OrgToken(FileInformation), new NumberValueToken(2, FileInformation)]) });
         _tokenizerMock.Setup(x => x.Tokenize("file3.asm"))
-            .Returns(new List<TokenList> { new([new OrgToken(), new NumberValueToken(3)]) });
+            .Returns(new List<TokenList>
+                { new([new OrgToken(FileInformation), new NumberValueToken(3, FileInformation)]) });
 
         var instructions = _parserService.Parse(new List<TokenList>
         {
-            new([new IncludeToken(), new StringValueToken("file1.asm")]),
-            new([new IncludeToken(), new StringValueToken("file2.asm")]),
-            new([new IncludeToken(), new StringValueToken("file3.asm")]),
-            new([new OrgToken(), new NumberValueToken(4)]),
-            new([new EndToken()])
+            new([new IncludeToken(FileInformation), new StringValueToken("file1.asm", FileInformation)]),
+            new([new IncludeToken(FileInformation), new StringValueToken("file2.asm", FileInformation)]),
+            new([new IncludeToken(FileInformation), new StringValueToken("file3.asm", FileInformation)]),
+            new([new OrgToken(FileInformation), new NumberValueToken(4, FileInformation)]),
+            new([new EndToken(FileInformation)])
         }, new InstructionSet());
 
         instructions.Should().Equal(new OrgInstruction(1), new OrgInstruction(2), new OrgInstruction(3),
@@ -177,25 +193,26 @@ public class ParserServiceTests
         GivenTokenListWithIncludeTokenWithStringValueTokenInMultipleFiles_ThenReturnInstructionFromAllFilesInOrderOfInclude()
     {
         _tokenizerMock.Setup(x => x.Tokenize("file1.asm"))
-            .Returns(new List<TokenList> { new([new OrgToken(), new NumberValueToken(1)]) });
+            .Returns(new List<TokenList>
+                { new([new OrgToken(FileInformation), new NumberValueToken(1, FileInformation)]) });
         _tokenizerMock.Setup(x => x.Tokenize("file2.asm"))
             .Returns(new List<TokenList>
             {
-                new([new IncludeToken(), new StringValueToken("file1.asm")]),
-                new([new OrgToken(), new NumberValueToken(2)])
+                new([new IncludeToken(FileInformation), new StringValueToken("file1.asm", FileInformation)]),
+                new([new OrgToken(FileInformation), new NumberValueToken(2, FileInformation)])
             });
         _tokenizerMock.Setup(x => x.Tokenize("file3.asm"))
             .Returns(new List<TokenList>
             {
-                new([new IncludeToken(), new StringValueToken("file2.asm")]),
-                new([new OrgToken(), new NumberValueToken(3)])
+                new([new IncludeToken(FileInformation), new StringValueToken("file2.asm", FileInformation)]),
+                new([new OrgToken(FileInformation), new NumberValueToken(3, FileInformation)])
             });
 
         var instructions = _parserService.Parse(new List<TokenList>
         {
-            new([new IncludeToken(), new StringValueToken("file3.asm")]),
-            new([new OrgToken(), new NumberValueToken(4)]),
-            new([new EndToken()])
+            new([new IncludeToken(FileInformation), new StringValueToken("file3.asm", FileInformation)]),
+            new([new OrgToken(FileInformation), new NumberValueToken(4, FileInformation)]),
+            new([new EndToken(FileInformation)])
         }, new InstructionSet());
 
         instructions.Should().Equal(new OrgInstruction(1), new OrgInstruction(2), new OrgInstruction(3),
@@ -210,7 +227,9 @@ public class ParserServiceTests
     public void GivenTokenListWithLabelTokenWithOtherToken_ThenThrowInstructionParseException()
     {
         var func = () => _parserService
-            .Parse(new List<TokenList> { new([new LabelToken("Label"), new StringValueToken("abc")]) },
+            .Parse(
+                new List<TokenList>
+                    { new([new LabelToken("Label", FileInformation), new StringValueToken("abc", FileInformation)]) },
                 new InstructionSet())
             .ToList();
 
@@ -221,7 +240,8 @@ public class ParserServiceTests
     public void GivenTokenListWithLabelTokenWithoutOtherToken_ThenReturnLabelInstruction()
     {
         var instructions =
-            _parserService.Parse(new List<TokenList> { new([new LabelToken("Label")]) }, new InstructionSet());
+            _parserService.Parse(new List<TokenList> { new([new LabelToken("Label", FileInformation)]) },
+                new InstructionSet());
 
         instructions.Should().Equal(new LabelInstruction("Label"));
     }
@@ -234,7 +254,7 @@ public class ParserServiceTests
     public void GivenTokenListWithNameConstantThatIsNotInInstructionSet_ThenThrowKeyNotFoundException()
     {
         var func = () => _parserService.Parse(new List<TokenList>
-                { new([new NameConstantToken("INSTRUCTION")]) },
+                { new([new NameConstantToken("INSTRUCTION", FileInformation)]) },
             new InstructionSet()).ToList();
 
         func.Should().Throw<KeyNotFoundException>();
@@ -244,7 +264,7 @@ public class ParserServiceTests
     public void GivenTokenListWithNameConstant_ThenReturnMnemonicWithoutParameters()
     {
         var instructions = _parserService.Parse(new List<TokenList>
-                { new([new NameConstantToken("INSTRUCTION")]) },
+                { new([new NameConstantToken("INSTRUCTION", FileInformation)]) },
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 0 } })).ToList();
 
         instructions.Should().BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", []), [])]);
@@ -255,9 +275,9 @@ public class ParserServiceTests
     {
         var instructions = _parserService.Parse(new List<TokenList>
             {
-                new([new NameConstantToken("INSTRUCTION1")]),
-                new([new NameConstantToken("INSTRUCTION2")]),
-                new([new NameConstantToken("INSTRUCTION3")]),
+                new([new NameConstantToken("INSTRUCTION1", FileInformation)]),
+                new([new NameConstantToken("INSTRUCTION2", FileInformation)]),
+                new([new NameConstantToken("INSTRUCTION3", FileInformation)]),
             },
             CreateInstructionSet(new Dictionary<string, int>
             {
@@ -277,7 +297,9 @@ public class ParserServiceTests
     public void GivenTokenListWithNameConstantAndNumberToken_ThenReturnMnemonicWithOneParameter()
     {
         var instructions = _parserService.Parse(new List<TokenList>
-                { new([new NameConstantToken("INSTRUCTION"), new NumberValueToken(3)]) },
+            {
+                new([new NameConstantToken("INSTRUCTION", FileInformation), new NumberValueToken(3, FileInformation)])
+            },
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
         instructions.Should()
@@ -290,7 +312,12 @@ public class ParserServiceTests
     public void GivenTokenListWithNameConstantAndNameConstantToken_ThenReturnMnemonicWithOneParameterWithLabel()
     {
         var instructions = _parserService.Parse(new List<TokenList>
-                { new([new NameConstantToken("INSTRUCTION"), new NameConstantToken("LABEL")]) },
+            {
+                new([
+                    new NameConstantToken("INSTRUCTION", FileInformation),
+                    new NameConstantToken("LABEL", FileInformation)
+                ])
+            },
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
         instructions.Should()
@@ -306,8 +333,8 @@ public class ParserServiceTests
         var instructions = _parserService.Parse(new List<TokenList>
             {
                 new([
-                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(3), new CommaToken(),
-                    new NumberValueToken(5)
+                    new NameConstantToken("INSTRUCTION", FileInformation), new NumberValueToken(3, FileInformation),
+                    new CommaToken(FileInformation), new NumberValueToken(5, FileInformation)
                 ])
             },
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 2 } })).ToList();
@@ -325,9 +352,10 @@ public class ParserServiceTests
         var instructions = _parserService.Parse(new List<TokenList>
             {
                 new([
-                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(3), new CommaToken(),
-                    new NumberValueToken(5), new CommaToken(), new NumberValueToken(6), new CommaToken(),
-                    new NumberValueToken(10)
+                    new NameConstantToken("INSTRUCTION", FileInformation), new NumberValueToken(3, FileInformation),
+                    new CommaToken(FileInformation), new NumberValueToken(5, FileInformation),
+                    new CommaToken(FileInformation), new NumberValueToken(6, FileInformation),
+                    new CommaToken(FileInformation), new NumberValueToken(10, FileInformation)
                 ])
             },
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 4 } })).ToList();
@@ -347,8 +375,8 @@ public class ParserServiceTests
         var instructions = _parserService.Parse(new List<TokenList>
             {
                 new([
-                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(1), new LeftShiftToken(),
-                    new NumberValueToken(8)
+                    new NameConstantToken("INSTRUCTION", FileInformation), new NumberValueToken(1, FileInformation),
+                    new LeftShiftToken(FileInformation), new NumberValueToken(8, FileInformation)
                 ])
             },
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
@@ -366,8 +394,9 @@ public class ParserServiceTests
         var instructions = _parserService.Parse(new List<TokenList>
             {
                 new([
-                    new NameConstantToken("INSTRUCTION"), new OpenParenthesisToken(), new NumberValueToken(1),
-                    new LeftShiftToken(), new NumberValueToken(8), new ClosedParenthesisToken()
+                    new NameConstantToken("INSTRUCTION", FileInformation), new OpenParenthesisToken(FileInformation),
+                    new NumberValueToken(1, FileInformation), new LeftShiftToken(FileInformation),
+                    new NumberValueToken(8, FileInformation), new ClosedParenthesisToken(FileInformation)
                 ])
             },
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
@@ -385,9 +414,10 @@ public class ParserServiceTests
         var instructions = _parserService.Parse(new List<TokenList>
             {
                 new([
-                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(6), new BarToken(),
-                    new NumberValueToken(8), new CommaToken(),
-                    new NumberValueToken(5), new RightShiftToken(), new NumberValueToken(1)
+                    new NameConstantToken("INSTRUCTION", FileInformation), new NumberValueToken(6, FileInformation),
+                    new BarToken(FileInformation), new NumberValueToken(8, FileInformation),
+                    new CommaToken(FileInformation), new NumberValueToken(5, FileInformation),
+                    new RightShiftToken(FileInformation), new NumberValueToken(1, FileInformation)
                 ])
             },
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 2 } })).ToList();
@@ -405,11 +435,14 @@ public class ParserServiceTests
         var instructions = _parserService.Parse(new List<TokenList>
             {
                 new([
-                    new NameConstantToken("INSTRUCTION"), new OpenParenthesisToken(), new NumberValueToken(3),
-                    new ClosedParenthesisToken(), new CommaToken(), new NumberValueToken(5), new AmpersandToken(),
-                    new NumberValueToken(3), new CommaToken(), new NumberValueToken(6), new XorToken(),
-                    new NumberValueToken(7), new CommaToken(), new NumberValueToken(10), new PlusToken(),
-                    new NumberValueToken(9)
+                    new NameConstantToken("INSTRUCTION", FileInformation), new OpenParenthesisToken(FileInformation),
+                    new NumberValueToken(3, FileInformation), new ClosedParenthesisToken(FileInformation),
+                    new CommaToken(FileInformation), new NumberValueToken(5, FileInformation),
+                    new AmpersandToken(FileInformation), new NumberValueToken(3, FileInformation),
+                    new CommaToken(FileInformation), new NumberValueToken(6, FileInformation),
+                    new XorToken(FileInformation), new NumberValueToken(7, FileInformation),
+                    new CommaToken(FileInformation), new NumberValueToken(10, FileInformation),
+                    new PlusToken(FileInformation), new NumberValueToken(9, FileInformation)
                 ])
             },
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 4 } })).ToList();
@@ -429,7 +462,8 @@ public class ParserServiceTests
         var func = () => _parserService.Parse(new List<TokenList>
             {
                 new([
-                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(3), new NumberValueToken(5)
+                    new NameConstantToken("INSTRUCTION", FileInformation), new NumberValueToken(3, FileInformation),
+                    new NumberValueToken(5, FileInformation)
                 ])
             },
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 0 } })).ToList();
@@ -444,8 +478,10 @@ public class ParserServiceTests
         var func = () => _parserService.Parse(new List<TokenList>
             {
                 new([
-                    new NameConstantToken("INSTRUCTION"), new NumberValueToken(3), new CommaToken(),
-                    new NumberValueToken(5), new CommaToken(), new NumberValueToken(6), new NumberValueToken(10)
+                    new NameConstantToken("INSTRUCTION", FileInformation), new NumberValueToken(3, FileInformation),
+                    new CommaToken(FileInformation), new NumberValueToken(5, FileInformation),
+                    new CommaToken(FileInformation), new NumberValueToken(6, FileInformation),
+                    new NumberValueToken(10, FileInformation)
                 ])
             },
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
@@ -461,7 +497,12 @@ public class ParserServiceTests
     public void GivenTokenListWithOneEquateWithNothingToReplace_ThenReturnEmptyList()
     {
         var instructions = _parserService.Parse(new List<TokenList>
-                { new([new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(3)]) },
+            {
+                new([
+                    new NameConstantToken("VARIABLE", FileInformation), new EquateToken(FileInformation),
+                    new NumberValueToken(3, FileInformation)
+                ])
+            },
             new InstructionSet());
 
         instructions.Should().BeEmpty();
@@ -472,8 +513,14 @@ public class ParserServiceTests
     {
         var instructions = _parserService.Parse(new List<TokenList>
         {
-            new([new NameConstantToken("VARIABLE"), new EquateToken(), new NumberValueToken(3)]),
-            new([new NameConstantToken("INSTRUCTION"), new NameConstantToken("VARIABLE")])
+            new([
+                new NameConstantToken("VARIABLE", FileInformation), new EquateToken(FileInformation),
+                new NumberValueToken(3, FileInformation)
+            ]),
+            new([
+                new NameConstantToken("INSTRUCTION", FileInformation),
+                new NameConstantToken("VARIABLE", FileInformation)
+            ])
         }, CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
         instructions.Should()
@@ -488,10 +535,15 @@ public class ParserServiceTests
         var instructions = _parserService.Parse(new List<TokenList>
         {
             new([
-                new NameConstantToken("VARIABLE"), new EquateToken(), new OpenParenthesisToken(),
-                new NumberValueToken(3), new LeftShiftToken(), new NumberValueToken(1), new ClosedParenthesisToken()
+                new NameConstantToken("VARIABLE", FileInformation), new EquateToken(FileInformation),
+                new OpenParenthesisToken(FileInformation), new NumberValueToken(3, FileInformation),
+                new LeftShiftToken(FileInformation), new NumberValueToken(1, FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]),
-            new([new NameConstantToken("INSTRUCTION"), new NameConstantToken("VARIABLE")])
+            new([
+                new NameConstantToken("INSTRUCTION", FileInformation),
+                new NameConstantToken("VARIABLE", FileInformation)
+            ])
         }, CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
         instructions.Should()
@@ -507,12 +559,13 @@ public class ParserServiceTests
         var func = () => _parserService.Parse(new List<TokenList>
         {
             new([
-                new NameConstantToken("VAR"), new EquateToken(), new OpenParenthesisToken(),
-                new NameConstantToken("UNKNOWN"), new LeftShiftToken(), new NumberValueToken(1),
-                new ClosedParenthesisToken()
+                new NameConstantToken("VAR", FileInformation), new EquateToken(FileInformation),
+                new OpenParenthesisToken(FileInformation), new NameConstantToken("UNKNOWN", FileInformation),
+                new LeftShiftToken(FileInformation), new NumberValueToken(1, FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]),
             new([
-                new NameConstantToken("INSTRUCTION"), new NameConstantToken("VAR")
+                new NameConstantToken("INSTRUCTION", FileInformation), new NameConstantToken("VAR", FileInformation)
             ])
         }, CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
@@ -525,20 +578,24 @@ public class ParserServiceTests
         var instructions = _parserService.Parse(new List<TokenList>
         {
             new([
-                new NameConstantToken("VAR1"), new EquateToken(), new NumberValueToken(2)
+                new NameConstantToken("VAR1", FileInformation), new EquateToken(FileInformation),
+                new NumberValueToken(2, FileInformation)
             ]),
             new([
-                new NameConstantToken("VAR2"), new EquateToken(), new OpenParenthesisToken(),
-                new NameConstantToken("VAR1"), new LeftShiftToken(), new NumberValueToken(1),
-                new ClosedParenthesisToken()
+                new NameConstantToken("VAR2", FileInformation), new EquateToken(FileInformation),
+                new OpenParenthesisToken(FileInformation), new NameConstantToken("VAR1", FileInformation),
+                new LeftShiftToken(FileInformation), new NumberValueToken(1, FileInformation),
+                new ClosedParenthesisToken(FileInformation)
             ]),
             new([
-                new NameConstantToken("VAR3"), new EquateToken(), new NameConstantToken("VAR1"), new PlusToken(),
-                new NameConstantToken("VAR2")
+                new NameConstantToken("VAR3", FileInformation), new EquateToken(FileInformation),
+                new NameConstantToken("VAR1", FileInformation), new PlusToken(FileInformation),
+                new NameConstantToken("VAR2", FileInformation)
             ]),
             new([
-                new NameConstantToken("INSTRUCTION"), new NameConstantToken("VAR1"), new CommaToken(),
-                new NameConstantToken("VAR2"), new CommaToken(), new NameConstantToken("VAR3")
+                new NameConstantToken("INSTRUCTION", FileInformation), new NameConstantToken("VAR1", FileInformation),
+                new CommaToken(FileInformation), new NameConstantToken("VAR2", FileInformation),
+                new CommaToken(FileInformation), new NameConstantToken("VAR3", FileInformation)
             ])
         }, CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 3 } })).ToList();
 

@@ -26,7 +26,8 @@ public class AssembleServiceTests
     [Fact]
     public void ShouldWriteHexFile()
     {
-        var tokenLists = new List<TokenList> { new([new EndToken()]) };
+        var fileInformation = new FileInformation("input.asm");
+        var tokenLists = new List<TokenList> { new([new EndToken(fileInformation)]) };
         var instructions = new List<IInstruction> { new EndInstruction() };
         var addressableInstructions = new List<AddressableInstruction> { new(0, 0) };
         var instructionSet = new InstructionSet();

@@ -1,0 +1,2 @@
+VAR1 EQU 5
+VAR2 EQU 1

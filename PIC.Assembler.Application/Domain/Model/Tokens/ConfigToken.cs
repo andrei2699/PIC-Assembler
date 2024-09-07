@@ -1,3 +1,3 @@
 namespace PIC.Assembler.Application.Domain.Model.Tokens;
 
-public record ConfigToken : Token;
+public record ConfigToken(FileInformation FileInformation) : Token(FileInformation);

@@ -1,3 +1,3 @@
 namespace PIC.Assembler.Application.Domain.Model.Tokens.Operation;
 
-public record AmpersandToken : Token;
+public record AmpersandToken(FileInformation FileInformation) : Token(FileInformation);

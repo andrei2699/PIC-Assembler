@@ -7,6 +7,8 @@ namespace PIC.Assembler.Application.Tests.Application.Model.Tokens;
 
 public class TokenListTests
 {
+    private readonly FileInformation _fileInformation = new("file-path");
+
     #region GetTokenOption
 
     [Fact]
@@ -22,7 +24,7 @@ public class TokenListTests
     [Fact]
     public void GivenIndexSmallerThan0_WhenGetTokenOption_ThenReturnNone()
     {
-        var tokenList = new TokenList([new AmpersandToken()]);
+        var tokenList = new TokenList([new AmpersandToken(_fileInformation)]);
 
         var tokenOption = tokenList.GetTokenOption<Token>(-20);
 
@@ -32,7 +34,7 @@ public class TokenListTests
     [Fact]
     public void GivenIndexBiggerThanNumberOfElements_WhenGetTokenOption_ThenReturnNone()
     {
-        var tokenList = new TokenList([new AmpersandToken()]);
+        var tokenList = new TokenList([new AmpersandToken(_fileInformation)]);
 
         var tokenOption = tokenList.GetTokenOption<Token>(40);
 
@@ -42,7 +44,7 @@ public class TokenListTests
     [Fact]
     public void GivenElementOfDifferentTypeAtIndex_WhenGetTokenOption_ThenReturnNone()
     {
-        var tokenList = new TokenList([new AmpersandToken()]);
+        var tokenList = new TokenList([new AmpersandToken(_fileInformation)]);
 
         var tokenOption = tokenList.GetTokenOption<BarToken>(0);
 
@@ -52,11 +54,11 @@ public class TokenListTests
     [Fact]
     public void GivenElementOfTypeAtIndex_WhenGetTokenOption_ThenReturnSome()
     {
-        var tokenList = new TokenList([new AmpersandToken(), new BarToken()]);
+        var tokenList = new TokenList([new AmpersandToken(_fileInformation), new BarToken(_fileInformation)]);
 
         var tokenOption = tokenList.GetTokenOption<BarToken>(1);
 
-        tokenOption.Should().Be(Option<BarToken>.Some(new BarToken()));
+        tokenOption.Should().Be(Option<BarToken>.Some(new BarToken(_fileInformation)));
     }
 
     #endregion
@@ -66,7 +68,7 @@ public class TokenListTests
     [Fact]
     public void GivenLessThan0_WhenSlice_ThenThrowArgumentOutOfRangeException()
     {
-        var tokenList = new TokenList([new AmpersandToken()]);
+        var tokenList = new TokenList([new AmpersandToken(_fileInformation)]);
 
         var func = () => tokenList.Slice(-6);
 
@@ -76,7 +78,7 @@ public class TokenListTests
     [Fact]
     public void GivenMoreThanCount_WhenSlice_ThenThrowArgumentException()
     {
-        var tokenList = new TokenList([new AmpersandToken()]);
+        var tokenList = new TokenList([new AmpersandToken(_fileInformation)]);
 
         var func = () => tokenList.Slice(7);
 
@@ -86,23 +88,27 @@ public class TokenListTests
     [Fact]
     public void Given0_WhenSlice_ThenReturnEntireList()
     {
-        var tokenList = new TokenList([new AmpersandToken(), new BarToken()]);
+        var tokenList = new TokenList([new AmpersandToken(_fileInformation), new BarToken(_fileInformation)]);
 
         var slice = tokenList.Slice(0);
 
-        slice.Should().BeEquivalentTo(new TokenList([new AmpersandToken(), new BarToken()]));
+        slice.Should()
+            .BeEquivalentTo(new TokenList([new AmpersandToken(_fileInformation), new BarToken(_fileInformation)]));
     }
 
     [Fact]
     public void GivenOtherIndex_WhenSlice_ThenReturnListStartingWithProvidedIndex()
     {
         var tokenList = new TokenList([
-            new AmpersandToken(), new BarToken(), new CommaToken(), new DefineToken(), new DollarToken()
+            new AmpersandToken(_fileInformation), new BarToken(_fileInformation), new CommaToken(_fileInformation),
+            new DefineToken(_fileInformation), new DollarToken(_fileInformation)
         ]);
 
         var slice = tokenList.Slice(2);
 
-        slice.Should().BeEquivalentTo(new TokenList([new CommaToken(), new DefineToken(), new DollarToken()]));
+        slice.Should().BeEquivalentTo(new TokenList([
+            new CommaToken(_fileInformation), new DefineToken(_fileInformation), new DollarToken(_fileInformation)
+        ]));
     }
 
     #endregion
@@ -122,17 +128,19 @@ public class TokenListTests
     [Fact]
     public void GivenConditionIsAlwaysFalse_WhenSlice_ThenReturnListContainingEntireList()
     {
-        var tokenList = new TokenList([new AmpersandToken(), new BarToken()]);
+        var tokenList = new TokenList([new AmpersandToken(_fileInformation), new BarToken(_fileInformation)]);
 
         var split = tokenList.Split(_ => false);
 
-        split.Should().BeEquivalentTo([new TokenList([new AmpersandToken(), new BarToken()])]);
+        split.Should().BeEquivalentTo([
+            new TokenList([new AmpersandToken(_fileInformation), new BarToken(_fileInformation)])
+        ]);
     }
 
     [Fact]
     public void GivenConditionIsAlwaysTrue_WhenSlice_ThenReturnListWithEmptyListForEveryElement()
     {
-        var tokenList = new TokenList([new AmpersandToken(), new BarToken()]);
+        var tokenList = new TokenList([new AmpersandToken(_fileInformation), new BarToken(_fileInformation)]);
 
         var split = tokenList.Split(_ => true);
 
@@ -142,25 +150,31 @@ public class TokenListTests
     [Fact]
     public void GivenListWithCondition_WhenSlice_ThenReturnListWithTwoSubLists()
     {
-        var tokenList = new TokenList([new AmpersandToken(), new BarToken(), new AmpersandToken()]);
+        var tokenList = new TokenList([
+            new AmpersandToken(_fileInformation), new BarToken(_fileInformation), new AmpersandToken(_fileInformation)
+        ]);
 
         var split = tokenList.Split(token => token is BarToken);
 
-        split.Should().BeEquivalentTo([new TokenList([new AmpersandToken()]), new TokenList([new AmpersandToken()])]);
+        split.Should().BeEquivalentTo([
+            new TokenList([new AmpersandToken(_fileInformation)]), new TokenList([new AmpersandToken(_fileInformation)])
+        ]);
     }
 
     [Fact]
     public void GivenListWithCondition_WhenSlice_ThenReturnListOfListsThatMatchTheCondition()
     {
         var tokenList = new TokenList([
-            new BarToken(), new AmpersandToken(), new AmpersandToken(), new BarToken(), new CommaToken()
+            new BarToken(_fileInformation), new AmpersandToken(_fileInformation), new AmpersandToken(_fileInformation),
+            new BarToken(_fileInformation), new CommaToken(_fileInformation)
         ]);
 
         var split = tokenList.Split(token => token is BarToken);
 
         split.Should().BeEquivalentTo([
-            new TokenList([]), new TokenList([new AmpersandToken(), new AmpersandToken()]),
-            new TokenList([new CommaToken()])
+            new TokenList([]),
+            new TokenList([new AmpersandToken(_fileInformation), new AmpersandToken(_fileInformation)]),
+            new TokenList([new CommaToken(_fileInformation)])
         ]);
     }
 

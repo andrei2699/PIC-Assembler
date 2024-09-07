@@ -1,3 +1,3 @@
 namespace PIC.Assembler.Application.Domain.Model.Tokens;
 
-public record CommaToken : Token;
+public record CommaToken(FileInformation FileInformation) : Token(FileInformation);

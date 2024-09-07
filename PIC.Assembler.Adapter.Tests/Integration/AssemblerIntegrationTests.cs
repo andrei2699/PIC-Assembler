@@ -28,6 +28,8 @@ public class AssemblerIntegrationTests
     [FileDataPath(filePaths: ["TestData/OneInstruction.asm", "OutputTestData/OneInstruction.txt"])]
     [FileDataPath(filePaths: ["TestData/OneInstructionWithLabel.asm", "OutputTestData/OneInstructionWithLabel.txt"])]
     [FileDataPath(filePaths: ["TestData/OneInstructionWithOrg.asm", "OutputTestData/OneInstructionWithOrg.txt"])]
+    [FileDataPath(filePaths: ["TestData/OneInstructionWithEquate.asm", "OutputTestData/OneInstructionWithEquate.txt"])]
+    [FileDataPath(filePaths: ["TestData/OneInstructionWithImport.asm", "OutputTestData/OneInstructionWithImport.txt"])]
     [FileDataPath(filePaths: ["TestData/SimpleLoop.asm", "OutputTestData/SimpleLoop.txt"])]
     public void GivenInput_WhenAssemble_ThenOutputIsGeneratedAsDebug(string input, string output)
     {
