@@ -1,3 +1,3 @@
 namespace PIC.Assembler.Application.Domain.Model.Instructions;
 
-public record OrgInstruction(int Value) : Instruction;
+public record OrgInstruction(int Value) : IInstruction;

@@ -27,7 +27,7 @@ public class AssembleServiceTests
     public void ShouldWriteHexFile()
     {
         var tokenLists = new List<TokenList> { new([new EndToken()]) };
-        var instructions = new List<Instruction> { new EndInstruction() };
+        var instructions = new List<IInstruction> { new EndInstruction() };
         var addressableInstructions = new List<AddressableInstruction> { new(0, 0) };
         var instructionSet = new InstructionSet();
         _configLoader.Setup(x => x.Load("config.json"))

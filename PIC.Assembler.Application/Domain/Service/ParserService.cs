@@ -7,14 +7,14 @@ namespace PIC.Assembler.Application.Domain.Service;
 
 public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arithmeticExpressionParser) : IParser
 {
-    public IEnumerable<Instruction> Parse(IEnumerable<TokenList> tokenLists, InstructionSet instructionSet)
+    public IEnumerable<IInstruction> Parse(IEnumerable<TokenList> tokenLists, InstructionSet instructionSet)
     {
         var variables = new Dictionary<string, int>();
 
         return tokenLists.Where(l => l.Tokens.Count > 0).SelectMany(list => Parse(list, instructionSet, variables));
     }
 
-    private IEnumerable<Instruction> Parse(TokenList tokenList, InstructionSet instructionSet,
+    private IEnumerable<IInstruction> Parse(TokenList tokenList, InstructionSet instructionSet,
         Dictionary<string, int> variables)
     {
         switch (tokenList.Tokens[0])
@@ -59,7 +59,7 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
         }
     }
 
-    private IEnumerable<Instruction> ParseIncludeInstruction(TokenList tokenList, InstructionSet instructionSet)
+    private IEnumerable<IInstruction> ParseIncludeInstruction(TokenList tokenList, InstructionSet instructionSet)
     {
         var option = tokenList.GetTokenOption<StringValueToken>(1)
             .Map(t => Parse(tokenizer.Tokenize(t.Value), instructionSet));
@@ -75,7 +75,7 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
         }
     }
 
-    private static IEnumerable<Instruction> ParseLabelInstruction(TokenList tokenList, LabelToken labelToken)
+    private static IEnumerable<IInstruction> ParseLabelInstruction(TokenList tokenList, LabelToken labelToken)
     {
         var tokenOption = tokenList.GetTokenOption<Token>(1);
         if (tokenOption.HasValue())
@@ -86,7 +86,7 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
         yield return new LabelInstruction(labelToken.Name);
     }
 
-    private IEnumerable<Instruction> ParseNameConstant(NameConstantToken nameConstantToken, TokenList tokenList,
+    private IEnumerable<IInstruction> ParseNameConstant(NameConstantToken nameConstantToken, TokenList tokenList,
         InstructionSet instructionSet, Dictionary<string, int> variables)
     {
         if (tokenList.GetTokenOption<EquateToken>(1).HasValue())
@@ -104,13 +104,26 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
         var parameterTokenLists = tokenList.Slice(1).Split(t => t is CommaToken)
             .Select(list =>
                 new TokenList(list.Tokens.Select(token => ReplaceNameConstantWithVariableValue(token, variables))
-                    .ToList()));
-        var parameters = parameterTokenLists.Select(arithmeticExpressionParser.Parse)
-            .Select(expression => expression.Evaluate()).ToList();
+                    .ToList())).ToList();
+        var mnemonicParameters = GetMnemonicParameters(parameterTokenLists);
+        
+        var instructionDefinition = instructionSet.GetDefinition(nameConstantToken.Name, mnemonicParameters.Count);
 
-        var instructionDefinition = instructionSet.GetDefinition(nameConstantToken.Name, parameters.Count);
+        yield return new Mnemonic(instructionDefinition, mnemonicParameters);
+    }
 
-        yield return new Mnemonic(instructionDefinition, parameters);
+    private List<IMnemonicParameter> GetMnemonicParameters(List<TokenList> parameterTokenLists)
+    {
+        return parameterTokenLists.Select<TokenList, IMnemonicParameter>(list =>
+        {
+            var nameConstant = list.GetTokenOption<NameConstantToken>(0);
+            if (nameConstant.HasValue())
+            {
+                return new MnemonicLabelParameter(nameConstant.Get().Name);
+            }
+
+            return new MnemonicNumericParameter(arithmeticExpressionParser.Parse(list).Evaluate());
+        }).ToList();
     }
 
     private static Token ReplaceNameConstantWithVariableValue(Token token, Dictionary<string, int> variables)

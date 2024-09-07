@@ -281,7 +281,23 @@ public class ParserServiceTests
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
         instructions.Should()
-            .BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [3])]);
+            .BeEquivalentTo([
+                new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [new MnemonicNumericParameter(3)])
+            ]);
+    }
+
+    [Fact]
+    public void GivenTokenListWithNameConstantAndNameConstantToken_ThenReturnMnemonicWithOneParameterWithLabel()
+    {
+        var instructions = _parserService.Parse(new List<TokenList>
+                { new([new NameConstantToken("INSTRUCTION"), new NameConstantToken("LABEL")]) },
+            CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
+
+        instructions.Should()
+            .BeEquivalentTo([
+                new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]),
+                    [new MnemonicLabelParameter("LABEL")])
+            ]);
     }
 
     [Fact]
@@ -297,7 +313,8 @@ public class ParserServiceTests
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 2 } })).ToList();
 
         instructions.Should().BeEquivalentTo([
-            new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1"]), [3, 5])
+            new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1"]),
+                [new MnemonicNumericParameter(3), new MnemonicNumericParameter(5)])
         ]);
     }
 
@@ -316,7 +333,11 @@ public class ParserServiceTests
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 4 } })).ToList();
 
         instructions.Should().BeEquivalentTo([
-            new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1", "p-2", "p-3"]), [3, 5, 6, 10])
+            new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1", "p-2", "p-3"]),
+            [
+                new MnemonicNumericParameter(3), new MnemonicNumericParameter(5), new MnemonicNumericParameter(6),
+                new MnemonicNumericParameter(10)
+            ])
         ]);
     }
 
@@ -333,7 +354,10 @@ public class ParserServiceTests
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
         instructions.Should()
-            .BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [1 << 8])]);
+            .BeEquivalentTo([
+                new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]),
+                    [new MnemonicNumericParameter(1 << 8)])
+            ]);
     }
 
     [Fact]
@@ -349,7 +373,10 @@ public class ParserServiceTests
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
         instructions.Should()
-            .BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [1 << 8])]);
+            .BeEquivalentTo([
+                new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]),
+                    [new MnemonicNumericParameter(1 << 8)])
+            ]);
     }
 
     [Fact]
@@ -366,7 +393,8 @@ public class ParserServiceTests
             CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 2 } })).ToList();
 
         instructions.Should().BeEquivalentTo([
-            new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1"]), [6 | 8, 5 >> 1])
+            new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1"]),
+                [new MnemonicNumericParameter(6 | 8), new MnemonicNumericParameter(5 >> 1)])
         ]);
     }
 
@@ -388,7 +416,10 @@ public class ParserServiceTests
 
         instructions.Should().BeEquivalentTo([
             new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1", "p-2", "p-3"]),
-                [3, 5 & 3, 6 ^ 7, 10 + 9])
+            [
+                new MnemonicNumericParameter(3), new MnemonicNumericParameter(5 & 3),
+                new MnemonicNumericParameter(6 ^ 7), new MnemonicNumericParameter(10 + 9)
+            ])
         ]);
     }
 
@@ -446,7 +477,9 @@ public class ParserServiceTests
         }, CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
         instructions.Should()
-            .BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [3])]);
+            .BeEquivalentTo([
+                new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [new MnemonicNumericParameter(3)])
+            ]);
     }
 
     [Fact]
@@ -462,7 +495,10 @@ public class ParserServiceTests
         }, CreateInstructionSet(new Dictionary<string, int> { { "INSTRUCTION", 1 } })).ToList();
 
         instructions.Should()
-            .BeEquivalentTo([new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]), [3 << 1])]);
+            .BeEquivalentTo([
+                new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0"]),
+                    [new MnemonicNumericParameter(3 << 1)])
+            ]);
     }
 
     [Fact]
@@ -508,7 +544,10 @@ public class ParserServiceTests
 
         instructions.Should().BeEquivalentTo([
             new Mnemonic(new InstructionDefinition("INSTRUCTION", "0", ["p-0", "p-1", "p-2"]),
-                [2, 2 << 1, 2 + (2 << 1)])
+            [
+                new MnemonicNumericParameter(2), new MnemonicNumericParameter(2 << 1),
+                new MnemonicNumericParameter(2 + (2 << 1))
+            ])
         ]);
     }
 

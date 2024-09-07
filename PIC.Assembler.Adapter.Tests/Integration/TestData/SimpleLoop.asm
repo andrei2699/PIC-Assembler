@@ -1,0 +1,5 @@
+START:
+    ADDWF 6, 0
+LOOP:
+    GOTO LOOP
+    END

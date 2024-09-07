@@ -1,0 +1,4 @@
+ORG 0x2F
+ADDWF 5, 1
+
+END
