@@ -147,9 +147,10 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithIncludeTokenWithStringValueToken_ThenReturnInstructionFromBothFiles()
     {
-        _tokenizerMock.Setup(x => x.Tokenize("file.asm"))
+        var fileInformation = new FileInformation("file.asm");
+        _tokenizerMock.Setup(x => x.Tokenize(It.Is<string>(s => s.EndsWith("file.asm"))))
             .Returns(new List<TokenList>
-                { new([new OrgToken(FileInformation), new NumberValueToken(4, FileInformation)]) });
+                { new([new OrgToken(fileInformation), new NumberValueToken(4, fileInformation)]) });
 
         var instructions = _parserService.Parse(new List<TokenList>
             {
@@ -165,15 +166,18 @@ public class ParserServiceTests
     public void
         GivenTokenListWithMultipleIncludeTokenWithStringValueToken_ThenReturnInstructionFromAllFilesInOrderOfInclude()
     {
-        _tokenizerMock.Setup(x => x.Tokenize("file1.asm"))
+        var fileInformation1 = new FileInformation("file1.asm");
+        var fileInformation2 = new FileInformation("file2.asm");
+        var fileInformation3 = new FileInformation("file3.asm");
+        _tokenizerMock.Setup(x => x.Tokenize(It.Is<string>(s => s.EndsWith("file1.asm"))))
             .Returns(new List<TokenList>
-                { new([new OrgToken(FileInformation), new NumberValueToken(1, FileInformation)]) });
-        _tokenizerMock.Setup(x => x.Tokenize("file2.asm"))
+                { new([new OrgToken(fileInformation1), new NumberValueToken(1, fileInformation1)]) });
+        _tokenizerMock.Setup(x => x.Tokenize(It.Is<string>(s => s.EndsWith("file2.asm"))))
             .Returns(new List<TokenList>
-                { new([new OrgToken(FileInformation), new NumberValueToken(2, FileInformation)]) });
-        _tokenizerMock.Setup(x => x.Tokenize("file3.asm"))
+                { new([new OrgToken(fileInformation2), new NumberValueToken(2, fileInformation2)]) });
+        _tokenizerMock.Setup(x => x.Tokenize(It.Is<string>(s => s.EndsWith("file3.asm"))))
             .Returns(new List<TokenList>
-                { new([new OrgToken(FileInformation), new NumberValueToken(3, FileInformation)]) });
+                { new([new OrgToken(fileInformation3), new NumberValueToken(3, fileInformation3)]) });
 
         var instructions = _parserService.Parse(new List<TokenList>
         {
@@ -192,20 +196,23 @@ public class ParserServiceTests
     public void
         GivenTokenListWithIncludeTokenWithStringValueTokenInMultipleFiles_ThenReturnInstructionFromAllFilesInOrderOfInclude()
     {
-        _tokenizerMock.Setup(x => x.Tokenize("file1.asm"))
+        var fileInformation1 = new FileInformation("file1.asm");
+        var fileInformation2 = new FileInformation("file2.asm");
+        var fileInformation3 = new FileInformation("file3.asm");
+        _tokenizerMock.Setup(x => x.Tokenize(It.Is<string>(s => s.EndsWith("file1.asm"))))
             .Returns(new List<TokenList>
-                { new([new OrgToken(FileInformation), new NumberValueToken(1, FileInformation)]) });
-        _tokenizerMock.Setup(x => x.Tokenize("file2.asm"))
+                { new([new OrgToken(fileInformation1), new NumberValueToken(1, fileInformation1)]) });
+        _tokenizerMock.Setup(x => x.Tokenize(It.Is<string>(s => s.EndsWith("file2.asm"))))
             .Returns(new List<TokenList>
             {
-                new([new IncludeToken(FileInformation), new StringValueToken("file1.asm", FileInformation)]),
-                new([new OrgToken(FileInformation), new NumberValueToken(2, FileInformation)])
+                new([new IncludeToken(fileInformation2), new StringValueToken("file1.asm", fileInformation2)]),
+                new([new OrgToken(fileInformation2), new NumberValueToken(2, fileInformation2)])
             });
-        _tokenizerMock.Setup(x => x.Tokenize("file3.asm"))
+        _tokenizerMock.Setup(x => x.Tokenize(It.Is<string>(s => s.EndsWith("file3.asm"))))
             .Returns(new List<TokenList>
             {
-                new([new IncludeToken(FileInformation), new StringValueToken("file2.asm", FileInformation)]),
-                new([new OrgToken(FileInformation), new NumberValueToken(3, FileInformation)])
+                new([new IncludeToken(fileInformation3), new StringValueToken("file2.asm", fileInformation3)]),
+                new([new OrgToken(fileInformation3), new NumberValueToken(3, fileInformation3)])
             });
 
         var instructions = _parserService.Parse(new List<TokenList>

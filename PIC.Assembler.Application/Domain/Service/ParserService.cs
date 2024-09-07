@@ -9,12 +9,17 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
 {
     public IEnumerable<IInstruction> Parse(IEnumerable<TokenList> tokenLists, InstructionSet instructionSet)
     {
-        var variables = new Dictionary<string, int>();
-
-        return tokenLists.Where(l => l.Tokens.Count > 0).SelectMany(list => Parse(list, instructionSet, variables));
+        return Parse(tokenLists, instructionSet, new Dictionary<string, int>());
     }
 
-    private IEnumerable<IInstruction> Parse(TokenList tokenList, InstructionSet instructionSet,
+    private IEnumerable<IInstruction> Parse(IEnumerable<TokenList> tokenLists, InstructionSet instructionSet,
+        Dictionary<string, int> variables)
+    {
+        return tokenLists.Where(l => l.Tokens.Count > 0)
+            .SelectMany(list => ParseTokens(list, instructionSet, variables));
+    }
+
+    private IEnumerable<IInstruction> ParseTokens(TokenList tokenList, InstructionSet instructionSet,
         Dictionary<string, int> variables)
     {
         switch (tokenList.Tokens[0])
@@ -38,7 +43,7 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
             }
             case IncludeToken:
             {
-                foreach (var instruction in ParseIncludeInstruction(tokenList, instructionSet))
+                foreach (var instruction in ParseIncludeInstruction(tokenList, instructionSet, variables))
                 {
                     yield return instruction;
                 }
@@ -59,20 +64,27 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
         }
     }
 
-    private IEnumerable<IInstruction> ParseIncludeInstruction(TokenList tokenList, InstructionSet instructionSet)
+    private IEnumerable<IInstruction> ParseIncludeInstruction(TokenList tokenList, InstructionSet instructionSet,
+        Dictionary<string, int> variables)
     {
-        var option = tokenList.GetTokenOption<StringValueToken>(1)
-            .Map(t => Parse(tokenizer.Tokenize(t.Value), instructionSet));
-
-        if (!option.HasValue())
+        var tokenOption = tokenList.GetTokenOption<StringValueToken>(1);
+        if (!tokenOption.HasValue())
         {
             throw new InstructionParseException("include was missing filepath");
         }
 
-        foreach (var instruction in option.Get())
+        var tokenLists = tokenizer.Tokenize(GetPathInSameFolder(tokenOption.Get()));
+        var instructions = Parse(tokenLists, instructionSet, variables);
+        foreach (var instruction in instructions)
         {
             yield return instruction;
         }
+    }
+
+    private static string GetPathInSameFolder(StringValueToken token)
+    {
+        var directoryInfo = Directory.GetParent(token.FileInformation.FilePath)!;
+        return Path.Join(directoryInfo.FullName, token.Value);
     }
 
     private static IEnumerable<IInstruction> ParseLabelInstruction(TokenList tokenList, LabelToken labelToken)

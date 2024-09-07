@@ -15,9 +15,12 @@ public class FileTokenizerAdapter : ITokenizer
     {
         var fileInformation = new FileInformation(filepath);
         return GetCleanedLines(filepath)
-            .Select(line => new TokenList(line.Split(" ")
-                .Select(token => ParseToken(token, fileInformation))
-                .SelectMany(tokenList => tokenList).ToList()));
+            .Select(line =>
+            {
+                var tokens = line.Split(" ")
+                    .SelectMany(token => ParseToken(token, fileInformation)).ToList();
+                return new TokenList(tokens);
+            });
     }
 
     private static IEnumerable<string> GetCleanedLines(string filepath)
