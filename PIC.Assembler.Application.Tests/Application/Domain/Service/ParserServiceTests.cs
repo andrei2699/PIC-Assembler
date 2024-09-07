@@ -96,7 +96,7 @@ public class ParserServiceTests
     }
 
     [Fact]
-    public void GivenTokenListWithOrgTokenWithOtherToken_ThenReturnOrgInstruction()
+    public void GivenTokenListWithOrgTokenWithOtherToken_ThenThrowInstructionParseException()
     {
         var func = () =>
             _parserService.Parse(
@@ -115,6 +115,43 @@ public class ParserServiceTests
             new InstructionSet());
 
         instructions.Should().Equal(new OrgInstruction(1));
+    }
+
+    #endregion
+
+    #region ConfigToken
+
+    [Fact]
+    public void GivenTokenListWithConfigTokenWithoutValue_ThenThrowInstructionParseException()
+    {
+        var func = () =>
+            _parserService.Parse(new List<TokenList> { new([new ConfigToken(FileInformation)]) }, new InstructionSet())
+                .ToList();
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenTokenListWithConfigTokenWithOtherToken_ThenThrowInstructionParseException()
+    {
+        var func = () =>
+            _parserService.Parse(
+                new List<TokenList>
+                    { new([new ConfigToken(FileInformation), new StringValueToken("abc", FileInformation)]) },
+                new InstructionSet()).ToList();
+
+        func.Should().Throw<InstructionParseException>();
+    }
+
+    [Fact]
+    public void GivenTokenListWithConfigTokenWithNumberValue_ThenReturnConfigInstruction()
+    {
+        var instructions = _parserService.Parse(
+            new List<TokenList>
+                { new([new ConfigToken(FileInformation), new NumberValueToken(0xFE, FileInformation)]) },
+            new InstructionSet());
+
+        instructions.Should().Equal(new ConfigInstruction(0xFE));
     }
 
     #endregion

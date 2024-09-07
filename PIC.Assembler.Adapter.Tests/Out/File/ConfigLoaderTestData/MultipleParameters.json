@@ -1,6 +1,7 @@
 {
   "bits": 8,
   "opcode": 12,
+  "configAddress": 4095,
   "instructions": [
     {
       "name": "MULTIPLE-PARAMETERS",

@@ -31,11 +31,12 @@ public class AssemblerIntegrationTests
     [FileDataPath(filePaths: ["TestData/OneInstructionWithEquate.asm", "OutputTestData/OneInstructionWithEquate.txt"])]
     [FileDataPath(filePaths: ["TestData/OneInstructionWithImport.asm", "OutputTestData/OneInstructionWithImport.txt"])]
     [FileDataPath(filePaths: ["TestData/SimpleLoop.asm", "OutputTestData/SimpleLoop.txt"])]
+    [FileDataPath(filePaths: ["TestData/ConfigInstruction.asm", "OutputTestData/ConfigInstruction.txt"])]
     public void GivenInput_WhenAssemble_ThenOutputIsGeneratedAsDebug(string input, string output)
     {
         var instructionSet = GetTestInstructionSet();
         _configLoader.Setup(x => x.Load("config.json"))
-            .Returns(new MicrocontrollerConfig(8, 12, instructionSet));
+            .Returns(new MicrocontrollerConfig(8, 12, instructionSet, 4095));
 
         var outputFilepath = $"{output}-actual.asm";
         _assembleService.Assemble(new AssembleCommand("config.json", input, outputFilepath));

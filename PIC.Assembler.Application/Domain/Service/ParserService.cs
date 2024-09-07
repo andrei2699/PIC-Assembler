@@ -30,7 +30,12 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
             case OrgToken:
                 yield return tokenList.GetTokenOption<NumberValueToken>(1)
                     .Map(t => new OrgInstruction(t.Value))
-                    .OrElseThrow(new InstructionParseException("org was missing number value"));
+                    .OrElseThrow(new InstructionParseException("org is missing number value"));
+                break;
+            case ConfigToken:
+                yield return tokenList.GetTokenOption<NumberValueToken>(1)
+                    .Map(t => new ConfigInstruction(t.Value))
+                    .OrElseThrow(new InstructionParseException("config is missing number value"));
                 break;
             case LabelToken labelToken:
             {

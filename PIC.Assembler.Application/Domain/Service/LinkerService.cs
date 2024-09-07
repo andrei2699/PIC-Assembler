@@ -4,7 +4,7 @@ namespace PIC.Assembler.Application.Domain.Service;
 
 public class LinkerService : ILinker
 {
-    public IEnumerable<AddressableInstruction> Link(IEnumerable<IInstruction> instructions)
+    public IEnumerable<AddressableInstruction> Link(IEnumerable<IInstruction> instructions, int configAddress)
     {
         var instructionList = instructions.ToList();
         if (instructionList.Find(instruction => instruction is EndInstruction) == null)
@@ -15,15 +15,10 @@ public class LinkerService : ILinker
         var currentAddress = 0;
         var labelAddresses = new Dictionary<string, int>();
         var addressableInstructions = new List<Func<AddressableInstruction>>();
+        AddressableInstruction? configAddressableInstruction = null;
 
-        foreach (var instruction in instructionList)
+        foreach (var instruction in instructionList.TakeWhile(instruction => instruction is not EndInstruction))
         {
-            if (instruction is EndInstruction)
-            {
-                addressableInstructions.Add(() => new EndOfFileAddressableInstruction());
-                break;
-            }
-
             switch (instruction)
             {
                 case LabelInstruction labelInstruction:
@@ -43,12 +38,19 @@ public class LinkerService : ILinker
                 case OrgInstruction orgInstruction:
                     currentAddress = orgInstruction.Value;
                     break;
+                case ConfigInstruction configInstruction:
+                    configAddressableInstruction = new AddressableInstruction(configAddress, configInstruction.Value);
+                    break;
                 default:
                     throw new InvalidInstructionException(nameof(instruction));
             }
         }
 
-        return addressableInstructions.Select(func => func.Invoke());
+        var linkedInstructions = addressableInstructions.Select(func => func.Invoke());
+
+        return configAddressableInstruction is not null
+            ? linkedInstructions.Concat([configAddressableInstruction, new EndOfFileAddressableInstruction()])
+            : linkedInstructions.Concat([new EndOfFileAddressableInstruction()]);
     }
 
     private static int ComputeMnemonicInstructionValue(Mnemonic mnemonic, Dictionary<string, int> labelAddresses)

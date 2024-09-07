@@ -13,7 +13,7 @@ public class LinkerServiceTest
     [Fact]
     public void GivenNoInstructions_ThenThrowMissingEndInstructionException()
     {
-        var func = () => _linkerService.Link([]);
+        var func = () => _linkerService.Link([], 0x00);
 
         func.Should().Throw<MissingEndInstructionException>();
     }
@@ -21,7 +21,7 @@ public class LinkerServiceTest
     [Fact]
     public void GivenNoEndInstruction_ThenThrowMissingEndInstructionException()
     {
-        var func = () => _linkerService.Link([new OrgInstruction(1234)]);
+        var func = () => _linkerService.Link([new OrgInstruction(1234)], 0x00);
 
         func.Should().Throw<MissingEndInstructionException>();
     }
@@ -29,7 +29,7 @@ public class LinkerServiceTest
     [Fact]
     public void GivenInvalidInstruction_ThenThrowInvalidInstructionException()
     {
-        var func = () => _linkerService.Link([new InvalidInstruction(), new EndInstruction()]);
+        var func = () => _linkerService.Link([new InvalidInstruction(), new EndInstruction()], 0x00);
 
         func.Should().Throw<InvalidInstructionException>();
     }
@@ -39,7 +39,7 @@ public class LinkerServiceTest
     {
         var addressableInstructions = _linkerService.Link([
             new EndInstruction()
-        ]);
+        ], 0x00);
 
         addressableInstructions.Should().BeEquivalentTo([new EndOfFileAddressableInstruction()]);
     }
@@ -50,7 +50,7 @@ public class LinkerServiceTest
         var addressableInstructions = _linkerService.Link([
             new LabelInstruction("LABEL"),
             new EndInstruction()
-        ]);
+        ], 0x00);
 
         addressableInstructions.Should().BeEquivalentTo([new EndOfFileAddressableInstruction()]);
     }
@@ -61,7 +61,7 @@ public class LinkerServiceTest
         var addressableInstructions = _linkerService.Link([
             new Mnemonic(new InstructionDefinition("INSTRUCTION", "1111", []), []),
             new EndInstruction()
-        ]);
+        ], 0x00);
 
         addressableInstructions.Should().BeEquivalentTo([
             new AddressableInstruction(0, 0xF),
@@ -76,7 +76,7 @@ public class LinkerServiceTest
             new OrgInstruction(0x66),
             new Mnemonic(new InstructionDefinition("INSTRUCTION", "1111", []), []),
             new EndInstruction()
-        ]);
+        ], 0x00);
 
         addressableInstructions.Should()
             .BeEquivalentTo([new AddressableInstruction(0x66, 0xF), new EndOfFileAddressableInstruction()]);
@@ -91,11 +91,58 @@ public class LinkerServiceTest
             new OrgInstruction(0x33),
             new Mnemonic(new InstructionDefinition("INSTRUCTION2", "0101", []), []),
             new EndInstruction()
-        ]);
+        ], 0x00);
 
         addressableInstructions.Should().BeEquivalentTo([
             new AddressableInstruction(0x22, 0xF), new AddressableInstruction(0x33, 0x5),
             new EndOfFileAddressableInstruction()
+        ]);
+    }
+
+    [Fact]
+    public void GivenConfigInstruction_ThenReturnInstructionAtAddressSpecifiedByMicrocontrollerConfig()
+    {
+        var addressableInstructions = _linkerService.Link([
+            new ConfigInstruction(0xFB),
+            new EndInstruction()
+        ], 0x11);
+
+        addressableInstructions.Should()
+            .BeEquivalentTo([new AddressableInstruction(0x11, 0xFB), new EndOfFileAddressableInstruction()]);
+    }
+
+    [Fact]
+    public void
+        GivenConfigInstructionAndMnemonicInstruction_ThenReturnInstructionAtAddressSpecifiedByMicrocontrollerConfig()
+    {
+        var addressableInstructions = _linkerService.Link([
+            new ConfigInstruction(0x66),
+            new Mnemonic(new InstructionDefinition("INSTRUCTION", "1111", []), []),
+            new EndInstruction()
+        ], 0x22);
+
+        addressableInstructions.Should()
+            .BeEquivalentTo([
+                new AddressableInstruction(0, 0xF), new AddressableInstruction(0x22, 0x66),
+                new EndOfFileAddressableInstruction()
+            ]);
+    }
+
+    [Fact]
+    public void
+        GivenMultipleOrgInstructionAndMnemonicInstruction_ThenReturnLastOccurrenceInstructionAtAddressSpecifiedMicrocontrollerConfig()
+    {
+        var addressableInstructions = _linkerService.Link([
+            new ConfigInstruction(0x22),
+            new Mnemonic(new InstructionDefinition("INSTRUCTION1", "1111", []), []),
+            new ConfigInstruction(0x33),
+            new Mnemonic(new InstructionDefinition("INSTRUCTION2", "0101", []), []),
+            new EndInstruction()
+        ], 0x11);
+
+        addressableInstructions.Should().BeEquivalentTo([
+            new AddressableInstruction(0x00, 0xF), new AddressableInstruction(0x01, 0x5),
+            new AddressableInstruction(0x11, 0x33), new EndOfFileAddressableInstruction()
         ]);
     }
 }

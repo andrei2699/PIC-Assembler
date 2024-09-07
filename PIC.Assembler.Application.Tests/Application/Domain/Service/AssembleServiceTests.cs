@@ -32,12 +32,12 @@ public class AssembleServiceTests
         var addressableInstructions = new List<AddressableInstruction> { new(0, 0) };
         var instructionSet = new InstructionSet();
         _configLoader.Setup(x => x.Load("config.json"))
-            .Returns(new MicrocontrollerConfig(8, 8, instructionSet));
+            .Returns(new MicrocontrollerConfig(8, 8, instructionSet, 0x55));
         _tokenizerMock.Setup(x => x.Tokenize("input.asm"))
             .Returns(tokenLists);
         _parserMock.Setup(x => x.Parse(tokenLists, instructionSet))
             .Returns(instructions);
-        _linkerMock.Setup(x => x.Link(instructions))
+        _linkerMock.Setup(x => x.Link(instructions, 0x55))
             .Returns(addressableInstructions);
 
         _assembleService.Assemble(new AssembleCommand("config.json", "input.asm", "output.hex"));

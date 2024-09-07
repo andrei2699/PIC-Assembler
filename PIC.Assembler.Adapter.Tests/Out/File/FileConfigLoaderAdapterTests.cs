@@ -97,6 +97,6 @@ public class FileConfigLoaderAdapterTests
             instructionSet.AddDefinition(instructionDefinition);
         }
 
-        return new MicrocontrollerConfig(8, 12, instructionSet);
+        return new MicrocontrollerConfig(8, 12, instructionSet, 4095);
     }
 }

@@ -17,7 +17,7 @@ public class AssembleService(
 
         var tokenLists = tokenizer.Tokenize(command.InputFilepath);
         var instructions = parser.Parse(tokenLists, config.InstructionSet);
-        var addressableInstructions = linker.Link(instructions);
+        var addressableInstructions = linker.Link(instructions, config.ConfigAddress);
 
         hexWriter.Write(addressableInstructions, command.OutputFilepath);
     }
