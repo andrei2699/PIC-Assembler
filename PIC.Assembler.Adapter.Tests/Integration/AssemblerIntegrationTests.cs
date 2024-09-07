@@ -43,7 +43,6 @@ public class AssemblerIntegrationTests
 
         var expected = File.ReadAllText(output);
         var actual = File.ReadAllText(outputFilepath);
-
         actual.Should().Be(expected);
     }
 

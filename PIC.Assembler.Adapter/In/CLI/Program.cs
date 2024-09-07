@@ -3,17 +3,13 @@ using PIC.Assembler.Adapter.In.CLI;
 using PIC.Assembler.Adapter.Out.File;
 using PIC.Assembler.Application.Domain.Service;
 using PIC.Assembler.Application.Port.In;
+using PIC.Assembler.Application.Port.Out;
 
 var result = Parser.Default.ParseArguments<CommandLineOptions>(args);
 
 result.WithParsed(options =>
 {
-    // TODO: replace with real hex writer
-    var fileHexDebugWriter = new FileHexDebugWriter();
-    if (options.Debug)
-    {
-        fileHexDebugWriter = new FileHexDebugWriter();
-    }
+    IHexWriter fileHexDebugWriter = options.Debug ? new FileHexDebugWriter() : new FileHexWriterAdapter();
 
     var assembleService = GetAssembleService(fileHexDebugWriter);
 
@@ -22,7 +18,7 @@ result.WithParsed(options =>
 });
 return;
 
-AssembleService GetAssembleService(FileHexDebugWriter hexWriter)
+AssembleService GetAssembleService(IHexWriter hexWriter)
 {
     var fileTokenizerAdapter = new FileTokenizerAdapter();
 
