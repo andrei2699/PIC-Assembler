@@ -20,7 +20,7 @@ public class FileConfigLoaderAdapter : IConfigLoader
         var config = JsonSerializer.Deserialize<FileMicrocontrollerConfig>(content, _jsonSerializerOptions)!;
 
         return new MicrocontrollerConfig(config.Bits, config.Opcode, CreateInstructionSet(config.Instructions),
-            config.ConfigAddress);
+            Convert.ToInt32(config.ConfigAddress, 16));
     }
 
     private static InstructionSet CreateInstructionSet(List<FileInstructionDefinition> instructions)

@@ -4,4 +4,4 @@ public record FileMicrocontrollerConfig(
     int Bits,
     int Opcode,
     List<FileInstructionDefinition> Instructions,
-    int ConfigAddress);
+    string ConfigAddress);
