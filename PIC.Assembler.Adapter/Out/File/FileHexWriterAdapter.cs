@@ -6,9 +6,9 @@ namespace PIC.Assembler.Adapter.Out.File;
 
 public class FileHexWriterAdapter : IHexWriter
 {
-    private const string DataRecordType = "00"; 
-    private const string ByteCount = "02"; 
-    
+    private const string DataRecordType = "00";
+    private const string ByteCount = "02";
+
     public void Write(IEnumerable<AddressableInstruction> instructions, string filepath)
     {
         var stringBuilder = new StringBuilder();
@@ -30,7 +30,7 @@ public class FileHexWriterAdapter : IHexWriter
         System.IO.File.WriteAllText(filepath, stringBuilder.ToString());
     }
 
-    private static byte CalculateCheckSum(int address,int data)
+    private static byte CalculateCheckSum(int address, int data)
     {
         var sum = 2 + address + 0 + data;
         var lsb = sum & 0xFF;

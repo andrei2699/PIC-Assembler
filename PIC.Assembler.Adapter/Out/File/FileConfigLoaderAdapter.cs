@@ -19,7 +19,8 @@ public class FileConfigLoaderAdapter : IConfigLoader
         var content = System.IO.File.ReadAllText(filepath);
         var config = JsonSerializer.Deserialize<FileMicrocontrollerConfig>(content, _jsonSerializerOptions)!;
 
-        return new MicrocontrollerConfig(config.Bits, config.Opcode, CreateInstructionSet(config.Instructions), config.ConfigAddress);
+        return new MicrocontrollerConfig(config.Bits, config.Opcode, CreateInstructionSet(config.Instructions),
+            config.ConfigAddress);
     }
 
     private static InstructionSet CreateInstructionSet(List<FileInstructionDefinition> instructions)
