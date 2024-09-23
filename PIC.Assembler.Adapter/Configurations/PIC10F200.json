@@ -1,33 +1,335 @@
 {
   "bits": 8,
   "opcode": 12,
+  "configAddress": "1FF",
   "instructions": [
     {
       "name": "ADDWF",
-      "type": "binary",
       "parameters": [
         {
-          "name": "f",
-          "min": 0,
-          "max": 31
+          "name": "f"
         },
         {
-          "name": "d",
-          "min": 0,
-          "max": 1
+          "name": "d"
         }
       ],
       "opcode": "0001 11df ffff"
     },
     {
+      "name": "ANDWF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0001 01df ffff"
+    },
+    {
+      "name": "CLRF",
+      "parameters": [
+        {
+          "name": "f"
+        }
+      ],
+      "opcode": "0000 011f ffff"
+    },
+    {
+      "name": "CLRW",
+      "parameters": [
+      ],
+      "opcode": "0000 0100 0000"
+    },
+    {
+      "name": "COMF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0010 01df ffff"
+    },
+    {
+      "name": "DECF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0000 11df ffff"
+    },
+    {
+      "name": "DECFSZ",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0010 11df ffff"
+    },
+    {
+      "name": "INCF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0010 10df ffff"
+    },
+    {
+      "name": "INCFSZ",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0011 11df ffff"
+    },
+    {
+      "name": "IORWF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0001 00df ffff"
+    },
+    {
+      "name": "MOVF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0010 00df ffff"
+    },
+    {
+      "name": "MOVWF",
+      "parameters": [
+        {
+          "name": "f"
+        }
+      ],
+      "opcode": "0000 001f ffff"
+    },
+    {
       "name": "NOP",
-      "type": "noarg",
       "opcode": "0000 0000 0000"
     },
     {
+      "name": "RLF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0011 01df ffff"
+    },
+    {
+      "name": "RRF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0011 00df ffff"
+    },
+    {
+      "name": "SUBWF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0000 10df ffff"
+    },
+    {
+      "name": "SWAPF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0011 10df ffff"
+    },
+    {
+      "name": "XORWF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "d"
+        }
+      ],
+      "opcode": "0001 10df ffff"
+    },
+    {
+      "name": "BCF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "b"
+        }
+      ],
+      "opcode": "0100 bbbf ffff"
+    },
+    {
+      "name": "BSF",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "b"
+        }
+      ],
+      "opcode": "0101 bbbf ffff"
+    },
+    {
+      "name": "BTFSC",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "b"
+        }
+      ],
+      "opcode": "0110 bbbf ffff"
+    },
+    {
+      "name": "BTFSS",
+      "parameters": [
+        {
+          "name": "f"
+        },
+        {
+          "name": "b"
+        }
+      ],
+      "opcode": "0111 bbbf ffff"
+    },
+    {
+      "name": "ANDLW",
+      "parameters": [
+        {
+          "name": "k"
+        }
+      ],
+      "opcode": "1110 kkkk kkkk"
+    },
+    {
+      "name": "CALL",
+      "parameters": [
+        {
+          "name": "k"
+        }
+      ],
+      "opcode": "1001 kkkk kkkk"
+    },
+    {
       "name": "CLRWDT",
-      "type": "noarg",
       "opcode": "0000 0000 0100"
+    },
+    {
+      "name": "GOTO",
+      "parameters": [
+        {
+          "name": "k"
+        }
+      ],
+      "opcode": "101k kkkk kkkk"
+    },
+    {
+      "name": "IORLW",
+      "parameters": [
+        {
+          "name": "k"
+        }
+      ],
+      "opcode": "1101 kkkk kkkk"
+    },
+    {
+      "name": "MOVLW",
+      "parameters": [
+        {
+          "name": "k"
+        }
+      ],
+      "opcode": "1100 kkkk kkkk"
+    },
+    {
+      "name": "OPTION",
+      "opcode": "0000 0000 0010"
+    },
+    {
+      "name": "RETLW",
+      "parameters": [
+        {
+          "name": "k"
+        }
+      ],
+      "opcode": "1000 kkkk kkkk"
+    },
+    {
+      "name": "SLEEP",
+      "opcode": "0000 0000 0011"
+    },
+    {
+      "name": "TRIS",
+      "parameters": [
+        {
+          "name": "f"
+        }
+      ],
+      "opcode": "0000 0000 0fff"
+    },
+    {
+      "name": "XORLW",
+      "parameters": [
+        {
+          "name": "k"
+        }
+      ],
+      "opcode": "1111 kkkk kkkk"
     }
   ]
 }
