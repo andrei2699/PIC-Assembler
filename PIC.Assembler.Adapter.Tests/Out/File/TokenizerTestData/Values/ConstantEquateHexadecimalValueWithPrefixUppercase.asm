@@ -1,0 +1,1 @@
+VARIABLE EQU H'A'

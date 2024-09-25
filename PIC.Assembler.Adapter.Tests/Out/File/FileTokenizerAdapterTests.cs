@@ -55,6 +55,8 @@ public class FileTokenizerAdapterTests
     [Theory]
     [FileDataPath("TokenizerTestData/Values/ConstantEquateHexadecimalValue.asm")]
     [FileDataPath("TokenizerTestData/Values/ConstantEquateHexadecimalValueUppercase.asm")]
+    [FileDataPath("TokenizerTestData/Values/ConstantEquateHexadecimalValueWithPrefix.asm")]
+    [FileDataPath("TokenizerTestData/Values/ConstantEquateHexadecimalValueWithPrefixUppercase.asm")]
     public void GivenConstantEquateWithHexadecimalValue_ThenReturnListWith3Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();

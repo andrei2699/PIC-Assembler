@@ -117,6 +117,8 @@ public class FileTokenizerAdapter : ITokenizer
                 new NumberValueToken(number, fileInformation)),
             _ when IsHexadecimalValueToken(token) => Option<Token>.Some(
                 new NumberValueToken(Convert.ToInt32(token, 16), fileInformation)),
+            _ when IsHexadecimalValueWithPrefixToken(token) => Option<Token>.Some(
+                new NumberValueToken(Convert.ToInt32(token[2..^1], 16), fileInformation)),
             _ when IsBinaryValueToken(token) => Option<Token>.Some(
                 new NumberValueToken(Convert.ToInt32(token[..^1], 2), fileInformation)),
             _ => Option<Token>.None()
@@ -193,6 +195,11 @@ public class FileTokenizerAdapter : ITokenizer
     private static bool IsHexadecimalValueToken(string token)
     {
         return token.StartsWith("0x");
+    }
+
+    private static bool IsHexadecimalValueWithPrefixToken(string token)
+    {
+        return (token.StartsWith("H'") || token.StartsWith("h'")) && token.EndsWith('\'');
     }
 
     private static bool IsDecimalValueToken(string token, out int number)
