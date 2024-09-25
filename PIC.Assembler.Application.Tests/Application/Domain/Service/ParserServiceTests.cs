@@ -154,6 +154,43 @@ public class ParserServiceTests
         instructions.Should().Equal(new ConfigInstruction(0xFE));
     }
 
+
+    [Fact]
+    public void GivenTokenListWithConfigTokenWithNumericExpression_ThenReturnConfigInstruction()
+    {
+        var instructions = _parserService.Parse(
+            new List<TokenList>
+            {
+                new([
+                    new ConfigToken(FileInformation), new NumberValueToken(1, FileInformation),
+                    new PlusToken(FileInformation), new NumberValueToken(2, FileInformation)
+                ])
+            },
+            new InstructionSet());
+
+        instructions.Should().Equal(new ConfigInstruction(3));
+    }
+
+    [Fact]
+    public void GivenTokenListWithConfigTokenWithExpression_ThenReturnConfigInstruction()
+    {
+        var instructions = _parserService.Parse(
+            new List<TokenList>
+            {
+                new([
+                    new NameConstantToken("VALUE", FileInformation), new EquateToken(FileInformation),
+                    new NumberValueToken(4, FileInformation)
+                ]),
+                new([
+                    new ConfigToken(FileInformation), new NameConstantToken("VALUE", FileInformation),
+                    new PlusToken(FileInformation), new NumberValueToken(2, FileInformation)
+                ])
+            },
+            new InstructionSet());
+
+        instructions.Should().Equal(new ConfigInstruction(6));
+    }
+
     #endregion
 
     #region IncludeToken

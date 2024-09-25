@@ -33,11 +33,13 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
                     .OrElseThrow(new InstructionParseException("org is missing number value",
                         orgToken.FileInformation));
                 break;
-            case ConfigToken configToken:
-                yield return tokenList.GetTokenOption<NumberValueToken>(1)
-                    .Map(t => new ConfigInstruction(t.Value))
-                    .OrElseThrow(new InstructionParseException("config is missing number value",
-                        configToken.FileInformation));
+            case ConfigToken:
+                var tokenListValue = new TokenList(tokenList.Slice(1).Tokens
+                    .Select(token => ReplaceNameConstantWithVariableValue(token, variables))
+                    .ToList());
+                var expression = arithmeticExpressionParser.Parse(tokenListValue);
+
+                yield return new ConfigInstruction(expression.Evaluate());
                 break;
             case LabelToken labelToken:
             {
