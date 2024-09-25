@@ -13,31 +13,34 @@ public class FileTokenizerAdapter : ITokenizer
 
     public IEnumerable<TokenList> Tokenize(string filepath)
     {
-        var fileInformation = new FileInformation(filepath);
         return GetCleanedLines(filepath)
             .Select(line =>
             {
-                var tokens = line.Split(" ")
+                var fileInformation = new FileInformation(filepath, line.Index);
+                var tokens = line.Content.Split(" ")
                     .SelectMany(token => ParseToken(token, fileInformation)).ToList();
                 return new TokenList(tokens);
             });
     }
 
-    private static IEnumerable<string> GetCleanedLines(string filepath)
+    private static IEnumerable<LineWithIndex> GetCleanedLines(string filepath)
     {
         var readAllText = System.IO.File.ReadAllLines(filepath);
 
         return readAllText
+            .Select((line, index) => new LineWithIndex(line, index))
             .Select(RemoveComment)
-            .Select(line => line.Trim())
-            .Where(line => line.Length > 0);
+            .Where(line => line.Content.Length > 0);
     }
 
-    private static string RemoveComment(string line)
+    private static LineWithIndex RemoveComment(LineWithIndex line)
     {
-        var indexOf = line.IndexOf(CommentLiteral, StringComparison.Ordinal);
+        var indexOf = line.Content.IndexOf(CommentLiteral, StringComparison.Ordinal);
 
-        return indexOf >= 0 ? line[..indexOf] : line;
+        var lineWithoutComment = indexOf >= 0 ? line.Content[..indexOf] : line.Content;
+        lineWithoutComment = lineWithoutComment.Trim();
+
+        return line with { Content = lineWithoutComment };
     }
 
     private static IEnumerable<Token> ParseToken(string token, FileInformation fileInformation)

@@ -9,7 +9,7 @@ namespace PIC.Assembler.Application.Tests.Application.Domain.Service;
 
 public class ArithmeticExpressionParserTests
 {
-    private static readonly FileInformation FileInformation = new("file-path");
+    private static readonly FileInformation FileInformation = new("file-path", 0);
     private readonly ArithmeticExpressionParser _parser = new();
 
     [Fact]

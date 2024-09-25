@@ -11,7 +11,7 @@ namespace PIC.Assembler.Application.Tests.Application.Domain.Service;
 
 public class ParserServiceTests
 {
-    private static readonly FileInformation FileInformation = new("file-path");
+    private static readonly FileInformation FileInformation = new("file-path", 0);
     private readonly Mock<ITokenizer> _tokenizerMock = new();
     private readonly ParserService _parserService;
 
@@ -184,7 +184,7 @@ public class ParserServiceTests
     [Fact]
     public void GivenTokenListWithIncludeTokenWithStringValueToken_ThenReturnInstructionFromBothFiles()
     {
-        var fileInformation = new FileInformation("file.asm");
+        var fileInformation = new FileInformation("file.asm", 0);
         _tokenizerMock.Setup(x => x.Tokenize(It.Is<string>(s => s.EndsWith("file.asm"))))
             .Returns(new List<TokenList>
                 { new([new OrgToken(fileInformation), new NumberValueToken(4, fileInformation)]) });
@@ -203,9 +203,9 @@ public class ParserServiceTests
     public void
         GivenTokenListWithMultipleIncludeTokenWithStringValueToken_ThenReturnInstructionFromAllFilesInOrderOfInclude()
     {
-        var fileInformation1 = new FileInformation("file1.asm");
-        var fileInformation2 = new FileInformation("file2.asm");
-        var fileInformation3 = new FileInformation("file3.asm");
+        var fileInformation1 = new FileInformation("file1.asm", 0);
+        var fileInformation2 = new FileInformation("file2.asm", 0);
+        var fileInformation3 = new FileInformation("file3.asm", 0);
         _tokenizerMock.Setup(x => x.Tokenize(It.Is<string>(s => s.EndsWith("file1.asm"))))
             .Returns(new List<TokenList>
                 { new([new OrgToken(fileInformation1), new NumberValueToken(1, fileInformation1)]) });
@@ -233,9 +233,9 @@ public class ParserServiceTests
     public void
         GivenTokenListWithIncludeTokenWithStringValueTokenInMultipleFiles_ThenReturnInstructionFromAllFilesInOrderOfInclude()
     {
-        var fileInformation1 = new FileInformation("file1.asm");
-        var fileInformation2 = new FileInformation("file2.asm");
-        var fileInformation3 = new FileInformation("file3.asm");
+        var fileInformation1 = new FileInformation("file1.asm", 0);
+        var fileInformation2 = new FileInformation("file2.asm", 0);
+        var fileInformation3 = new FileInformation("file3.asm", 0);
         _tokenizerMock.Setup(x => x.Tokenize(It.Is<string>(s => s.EndsWith("file1.asm"))))
             .Returns(new List<TokenList>
                 { new([new OrgToken(fileInformation1), new NumberValueToken(1, fileInformation1)]) });

@@ -7,7 +7,7 @@ namespace PIC.Assembler.Application.Tests.Application.Model.Tokens;
 
 public class TokenListTests
 {
-    private readonly FileInformation _fileInformation = new("file-path");
+    private readonly FileInformation _fileInformation = new("file-path", 0);
 
     #region GetTokenOption
 

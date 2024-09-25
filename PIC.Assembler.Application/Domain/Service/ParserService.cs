@@ -27,15 +27,17 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
             case EndToken:
                 yield return new EndInstruction();
                 break;
-            case OrgToken:
+            case OrgToken orgToken:
                 yield return tokenList.GetTokenOption<NumberValueToken>(1)
                     .Map(t => new OrgInstruction(t.Value))
-                    .OrElseThrow(new InstructionParseException("org is missing number value"));
+                    .OrElseThrow(new InstructionParseException("org is missing number value",
+                        orgToken.FileInformation));
                 break;
-            case ConfigToken:
+            case ConfigToken configToken:
                 yield return tokenList.GetTokenOption<NumberValueToken>(1)
                     .Map(t => new ConfigInstruction(t.Value))
-                    .OrElseThrow(new InstructionParseException("config is missing number value"));
+                    .OrElseThrow(new InstructionParseException("config is missing number value",
+                        configToken.FileInformation));
                 break;
             case LabelToken labelToken:
             {
@@ -65,7 +67,8 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
                 break;
             }
             default:
-                throw new InstructionParseException($"{tokenList.Tokens[0]} is not a valid instruction");
+                throw new InstructionParseException($"{tokenList.Tokens[0]} is not a valid instruction",
+                    tokenList.Tokens[0].FileInformation);
         }
     }
 
@@ -97,7 +100,8 @@ public class ParserService(ITokenizer tokenizer, ArithmeticExpressionParser arit
         var tokenOption = tokenList.GetTokenOption<Token>(1);
         if (tokenOption.HasValue())
         {
-            throw new InstructionParseException("label instruction must be on separate line");
+            throw new InstructionParseException("label instruction must be on separate line",
+                tokenOption.Get().FileInformation);
         }
 
         yield return new LabelInstruction(labelToken.Name);

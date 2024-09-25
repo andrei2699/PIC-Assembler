@@ -14,7 +14,8 @@ public class ArithmeticExpressionParser
 
         if (nextIndex < tokenList.Tokens.Count)
         {
-            throw new InstructionParseException("unexpected remaining tokens");
+            throw new InstructionParseException("unexpected remaining tokens",
+                tokenList.Tokens[nextIndex].FileInformation);
         }
 
         return expression;
@@ -41,7 +42,7 @@ public class ArithmeticExpressionParser
                 AmpersandToken => new BitwiseAndExpression(left, right),
                 BarToken => new BitwiseOrExpression(left, right),
                 XorToken => new BitwiseXorExpression(left, right),
-                _ => throw new InstructionParseException("operator not implemented")
+                _ => throw new InstructionParseException("operator not implemented", operatorToken.FileInformation)
             };
         }
 
@@ -80,17 +81,17 @@ public class ArithmeticExpressionParser
                 var (expression, nextIndex) = ParseExpression(tokenList, index + 1, 0);
 
                 tokenList.GetTokenOption<ClosedParenthesisToken>(nextIndex)
-                    .OrElseThrow(new InstructionParseException("missing close parenthesis"));
+                    .OrElseThrow(new InstructionParseException("missing close parenthesis", token.FileInformation));
 
                 return (expression, nextIndex + 1);
             default:
             {
                 if (!IsTokenValid(token))
                 {
-                    throw new InstructionParseException($"invalid token {token}");
+                    throw new InstructionParseException($"invalid token {token}", token.FileInformation);
                 }
 
-                throw new InstructionParseException($"invalid arithmetic expression {token}");
+                throw new InstructionParseException($"invalid arithmetic expression {token}", token.FileInformation);
             }
         }
     }

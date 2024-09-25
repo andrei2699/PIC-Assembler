@@ -37,7 +37,7 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new EndToken(new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new EndToken(new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -48,8 +48,9 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-            new EquateToken(new FileInformation(filePath)), new NumberValueToken(2, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+            new EquateToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(2, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -63,9 +64,9 @@ public class FileTokenizerAdapterTests
 
         tokens.Should().HaveCount(1);
         tokens[0].Tokens.Should()
-            .Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-                new EquateToken(new FileInformation(filePath)),
-                new NumberValueToken(10, new FileInformation(filePath)));
+            .Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+                new EquateToken(new FileInformation(filePath, 0)),
+                new NumberValueToken(10, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -76,8 +77,9 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-            new EquateToken(new FileInformation(filePath)), new NumberValueToken(5, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+            new EquateToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(5, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -89,9 +91,9 @@ public class FileTokenizerAdapterTests
 
         tokens.Should().HaveCount(1);
         tokens[0].Tokens.Should()
-            .Equal(new DefineToken(new FileInformation(filePath)),
-                new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-                new CharacterValueToken('a', new FileInformation(filePath)));
+            .Equal(new DefineToken(new FileInformation(filePath, 0)),
+                new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+                new CharacterValueToken('a', new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -102,8 +104,8 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new IncludeToken(new FileInformation(filePath)),
-            new StringValueToken("file.inc", new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new IncludeToken(new FileInformation(filePath, 0)),
+            new StringValueToken("file.inc", new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -114,8 +116,8 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new OrgToken(new FileInformation(filePath)),
-            new NumberValueToken(0, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new OrgToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(0, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -126,8 +128,8 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new ConfigToken(new FileInformation(filePath)),
-            new NameConstantToken("_WDT_OFF", new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new ConfigToken(new FileInformation(filePath, 0)),
+            new NameConstantToken("_WDT_OFF", new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -138,7 +140,7 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new LabelToken("LABEL", new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new LabelToken("LABEL", new FileInformation(filePath, 0)));
     }
 
 
@@ -150,9 +152,10 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("MOV", new FileInformation(filePath)),
-            new NameConstantToken("A", new FileInformation(filePath)), new CommaToken(new FileInformation(filePath)),
-            new NameConstantToken("B", new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("MOV", new FileInformation(filePath, 0)),
+            new NameConstantToken("A", new FileInformation(filePath, 0)),
+            new CommaToken(new FileInformation(filePath, 0)),
+            new NameConstantToken("B", new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -163,9 +166,11 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-            new EquateToken(new FileInformation(filePath)), new NumberValueToken(1, new FileInformation(filePath)),
-            new LeftShiftToken(new FileInformation(filePath)), new NumberValueToken(3, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+            new EquateToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(1, new FileInformation(filePath, 0)),
+            new LeftShiftToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(3, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -176,9 +181,11 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-            new EquateToken(new FileInformation(filePath)), new NumberValueToken(1, new FileInformation(filePath)),
-            new RightShiftToken(new FileInformation(filePath)), new NumberValueToken(3, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+            new EquateToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(1, new FileInformation(filePath, 0)),
+            new RightShiftToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(3, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -189,10 +196,11 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-            new EquateToken(new FileInformation(filePath)), new OpenParenthesisToken(new FileInformation(filePath)),
-            new NumberValueToken(2, new FileInformation(filePath)),
-            new ClosedParenthesisToken(new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+            new EquateToken(new FileInformation(filePath, 0)),
+            new OpenParenthesisToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(2, new FileInformation(filePath, 0)),
+            new ClosedParenthesisToken(new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -203,9 +211,10 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-            new EquateToken(new FileInformation(filePath)), new NumberValueToken(2, new FileInformation(filePath)),
-            new PlusToken(new FileInformation(filePath)), new NumberValueToken(4, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+            new EquateToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(2, new FileInformation(filePath, 0)),
+            new PlusToken(new FileInformation(filePath, 0)), new NumberValueToken(4, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -217,14 +226,17 @@ public class FileTokenizerAdapterTests
 
         tokens.Should().HaveCount(2);
         tokens[0].Tokens.Should()
-            .Equal(new NameConstantToken("VARIABLE1", new FileInformation(filePath)),
-                new EquateToken(new FileInformation(filePath)), new NumberValueToken(5, new FileInformation(filePath)));
+            .Equal(new NameConstantToken("VARIABLE1", new FileInformation(filePath, 0)),
+                new EquateToken(new FileInformation(filePath, 0)),
+                new NumberValueToken(5, new FileInformation(filePath, 0)));
         tokens[1].Tokens.Should()
-            .Equal(new NameConstantToken("VARIABLE2", new FileInformation(filePath)),
-                new EquateToken(new FileInformation(filePath)), new OpenParenthesisToken(new FileInformation(filePath)),
-                new NameConstantToken("VARIABLE1", new FileInformation(filePath)),
-                new PlusToken(new FileInformation(filePath)), new NumberValueToken(2, new FileInformation(filePath)),
-                new ClosedParenthesisToken(new FileInformation(filePath)));
+            .Equal(new NameConstantToken("VARIABLE2", new FileInformation(filePath, 1)),
+                new EquateToken(new FileInformation(filePath, 1)),
+                new OpenParenthesisToken(new FileInformation(filePath, 1)),
+                new NameConstantToken("VARIABLE1", new FileInformation(filePath, 1)),
+                new PlusToken(new FileInformation(filePath, 1)),
+                new NumberValueToken(2, new FileInformation(filePath, 1)),
+                new ClosedParenthesisToken(new FileInformation(filePath, 1)));
     }
 
     [Theory]
@@ -235,9 +247,11 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-            new EquateToken(new FileInformation(filePath)), new NumberValueToken(2, new FileInformation(filePath)),
-            new MinusToken(new FileInformation(filePath)), new NumberValueToken(4, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+            new EquateToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(2, new FileInformation(filePath, 0)),
+            new MinusToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(4, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -248,9 +262,11 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-            new EquateToken(new FileInformation(filePath)), new NumberValueToken(2, new FileInformation(filePath)),
-            new AmpersandToken(new FileInformation(filePath)), new NumberValueToken(4, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+            new EquateToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(2, new FileInformation(filePath, 0)),
+            new AmpersandToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(4, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -261,9 +277,10 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-            new EquateToken(new FileInformation(filePath)), new NumberValueToken(2, new FileInformation(filePath)),
-            new BarToken(new FileInformation(filePath)), new NumberValueToken(4, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+            new EquateToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(2, new FileInformation(filePath, 0)),
+            new BarToken(new FileInformation(filePath, 0)), new NumberValueToken(4, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -274,9 +291,10 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-            new EquateToken(new FileInformation(filePath)), new NumberValueToken(2, new FileInformation(filePath)),
-            new XorToken(new FileInformation(filePath)), new NumberValueToken(4, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+            new EquateToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(2, new FileInformation(filePath, 0)),
+            new XorToken(new FileInformation(filePath, 0)), new NumberValueToken(4, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -287,9 +305,9 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath)),
-            new EquateToken(new FileInformation(filePath)), new TildaToken(new FileInformation(filePath)),
-            new NumberValueToken(5, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("VARIABLE", new FileInformation(filePath, 0)),
+            new EquateToken(new FileInformation(filePath, 0)), new TildaToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(5, new FileInformation(filePath, 0)));
     }
 
     [Theory]
@@ -300,8 +318,8 @@ public class FileTokenizerAdapterTests
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
 
         tokens.Should().HaveCount(1);
-        tokens[0].Tokens.Should().Equal(new NameConstantToken("GOTO", new FileInformation(filePath)),
-            new DollarToken(new FileInformation(filePath)), new PlusToken(new FileInformation(filePath)),
-            new NumberValueToken(1, new FileInformation(filePath)));
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("GOTO", new FileInformation(filePath, 0)),
+            new DollarToken(new FileInformation(filePath, 0)), new PlusToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(1, new FileInformation(filePath, 0)));
     }
 }
