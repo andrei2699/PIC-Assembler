@@ -1,13 +1,8 @@
-;        LIST
-
 ;==========================================================================
 ;  MPASM PIC10F200 processor include
 ; 
 ;  (c) Copyright 1999-2013 Microchip Technology, All rights reserved
 ;==========================================================================
-
-;        NOLIST
-
 ;==========================================================================
 ;  This header file defines configurations, registers, and other useful
 ;  bits of information for the PIC10F200 microcontroller.  These names
@@ -23,17 +18,6 @@
 ;       3. Processor Type entry in the MPASM full-screen interface
 ;       4. Setting the processor in the MPLAB Project Dialog
 ;==========================================================================
-
-;==========================================================================
-;
-;       Verify Processor
-;
-;==========================================================================
-;        IFNDEF __10F200
-;           MESSG "Processor-header file mismatch.  Verify selected processor."
-;        ENDIF
-
-
 
 ;==========================================================================
 ;
@@ -102,17 +86,6 @@ TRISIO1          EQU  H'0001'
 TRISIO2          EQU  H'0002'
 TRISIO3          EQU  H'0003'
 
-
-
-;==========================================================================
-;
-;       RAM Definitions
-;
-;==========================================================================
-       __MAXRAM  H'001F'
-       __BADRAM  H'0007'
-       __BADRAM  H'0008'-H'000F'
-
 ;==========================================================================
 ;
 ;       Configuration Bits
@@ -147,5 +120,3 @@ _IDLOC0          EQU  H'100'
 _IDLOC1          EQU  H'101'
 _IDLOC2          EQU  H'102'
 _IDLOC3          EQU  H'103'
-
-;        LIST
