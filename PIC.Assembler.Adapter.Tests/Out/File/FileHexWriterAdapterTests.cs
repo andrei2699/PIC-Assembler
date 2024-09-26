@@ -47,4 +47,19 @@ public class FileHexWriterAdapterTests
         var actual = System.IO.File.ReadAllText(outputFilepath);
         actual.Should().Be(expected);
     }
+    
+    
+    [Theory]
+    [FileDataPath("HexWriterTestData/AddressableInstructionWith3NibblesInData.hex")]
+    public void WriteAddressableInstructionWith3NibblesInData(string expectedFilePath)
+    {
+        var outputFilepath = $"{expectedFilePath}-actual.hex";
+
+        _fileHexWriterAdapter.Write([new AddressableInstruction(0x00, 0xCFD)],
+            outputFilepath);
+
+        var expected = System.IO.File.ReadAllText(expectedFilePath);
+        var actual = System.IO.File.ReadAllText(outputFilepath);
+        actual.Should().Be(expected);
+    }
 }

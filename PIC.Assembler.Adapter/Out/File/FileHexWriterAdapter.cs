@@ -22,7 +22,7 @@ public class FileHexWriterAdapter : IHexWriter
             }
 
             var address = instruction.Address.ToString("X4");
-            var data = instruction.Data.ToString("X2");
+            var data = instruction.Data.ToString("X4");
             var checksum = CalculateCheckSum(instruction.Address, instruction.Data).ToString("X2");
             stringBuilder.AppendLine($":{ByteCount}{address}{DataRecordType}{data}{checksum}");
         }
@@ -32,7 +32,19 @@ public class FileHexWriterAdapter : IHexWriter
 
     private static byte CalculateCheckSum(int address, int data)
     {
-        var sum = 2 + address + 0 + data;
+        var sum = 2 + 0; //byte count + data record type
+        while (address != 0)
+        {
+            sum += address & 0xFF;
+            address >>= 8;
+        }
+
+        while (data != 0)
+        {
+            sum += data & 0xFF;
+            data >>= 8;
+        }
+        
         var lsb = sum & 0xFF;
 
         return (byte)(~lsb + 1);
