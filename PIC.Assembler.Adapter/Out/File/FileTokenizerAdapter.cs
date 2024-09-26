@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using PIC.Assembler.Application.Domain.Model.Tokens;
 using PIC.Assembler.Application.Domain.Model.Tokens.Operation;
 using PIC.Assembler.Application.Domain.Model.Tokens.Values;
@@ -7,8 +8,11 @@ using PIC.Assembler.Common;
 
 namespace PIC.Assembler.Adapter.Out.File;
 
-public class FileTokenizerAdapter : ITokenizer
+public partial class FileTokenizerAdapter : ITokenizer
 {
+    [GeneratedRegex(@"(\s+|,)")]
+    private static partial Regex SplitLineRegex();
+
     private const string CommentLiteral = ";";
 
     public IEnumerable<TokenList> Tokenize(string filepath)
@@ -17,10 +21,16 @@ public class FileTokenizerAdapter : ITokenizer
             .Select(line =>
             {
                 var fileInformation = new FileInformation(filepath, line.Index);
-                var tokens = line.Content.Split(" ")
+                var tokens = SplitLines(line)
                     .SelectMany(token => ParseToken(token, fileInformation)).ToList();
                 return new TokenList(tokens);
             });
+    }
+
+    private static IEnumerable<string> SplitLines(LineWithIndex line)
+    {
+        return SplitLineRegex().Split(line.Content)
+            .Where(s => !string.IsNullOrWhiteSpace(s));
     }
 
     private static IEnumerable<LineWithIndex> GetCleanedLines(string filepath)

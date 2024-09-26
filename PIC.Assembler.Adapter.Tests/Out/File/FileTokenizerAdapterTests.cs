@@ -143,6 +143,19 @@ public class FileTokenizerAdapterTests
         tokens[0].Tokens.Should().Equal(new LabelToken("LABEL", new FileInformation(filePath, 0)));
     }
 
+    [Theory]
+    [FileDataPath("TokenizerTestData/MnemonicWithCommaWithNumber.asm")]
+    [FileDataPath("TokenizerTestData/MnemonicWithCommaWithNumberCompact.asm")]
+    public void GivenMnemonicWithCommaWithNumber_ThenReturnListWith4Tokens(string filePath)
+    {
+        var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();
+
+        tokens.Should().HaveCount(1);
+        tokens[0].Tokens.Should().Equal(new NameConstantToken("DECFSZ", new FileInformation(filePath, 0)),
+            new NumberValueToken(10, new FileInformation(filePath, 0)),
+            new CommaToken(new FileInformation(filePath, 0)),
+            new NumberValueToken(31, new FileInformation(filePath, 0)));
+    }
 
     [Theory]
     [FileDataPath("TokenizerTestData/MnemonicWithComma.asm")]
