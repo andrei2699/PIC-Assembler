@@ -43,6 +43,8 @@ public class FileTokenizerAdapterTests
     [Theory]
     [FileDataPath("TokenizerTestData/Values/ConstantEquateDecimalValue.asm")]
     [FileDataPath("TokenizerTestData/Values/ConstantEquateDecimalValueUppercase.asm")]
+    [FileDataPath("TokenizerTestData/Values/ConstantEquateDecimalValueWithPrefix.asm")]
+    [FileDataPath("TokenizerTestData/Values/ConstantEquateDecimalValueWithPrefixUppercase.asm")]
     public void GivenConstantEquateWithDecimalValue_ThenReturnListWith3Tokens(string filePath)
     {
         var tokens = _fileTokenizerAdapter.Tokenize(filePath).ToList();

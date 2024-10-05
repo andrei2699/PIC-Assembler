@@ -128,6 +128,8 @@ public partial class FileTokenizerAdapter : ITokenizer
                 fileInformation)),
             _ when IsDecimalValueToken(token, out var number) => Option<Token>.Some(
                 new NumberValueToken(number, fileInformation)),
+            _ when IsDecimalValueWithPrefixToken(token) => Option<Token>.Some(
+                new NumberValueToken(Convert.ToInt32(token[2..^1], 10), fileInformation)),
             _ when IsHexadecimalValueToken(token) => Option<Token>.Some(
                 new NumberValueToken(Convert.ToInt32(token, 16), fileInformation)),
             _ when IsHexadecimalValueWithPrefixToken(token) => Option<Token>.Some(
@@ -218,6 +220,11 @@ public partial class FileTokenizerAdapter : ITokenizer
     private static bool IsDecimalValueToken(string token, out int number)
     {
         return int.TryParse(token, out number);
+    }
+
+    private static bool IsDecimalValueWithPrefixToken(string token)
+    {
+        return (token.StartsWith("D'") || token.StartsWith("d'")) && token.EndsWith('\'');
     }
 
     private static bool IsLabel(string token)
