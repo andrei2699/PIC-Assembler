@@ -13,6 +13,10 @@ result.WithParsed(options =>
 
     var assembleService = GetAssembleService(fileHexDebugWriter);
 
+    Console.WriteLine($"Reading from '{options.InputFilePath}'");
+    Console.WriteLine($"Using config from '{options.ConfigFilePath}'");
+    Console.WriteLine($"Writing to '{Path.GetFullPath(options.OutputFilePath)}'");
+
     assembleService.Assemble(new AssembleCommand(options.ConfigFilePath, options.InputFilePath,
         options.OutputFilePath));
 });
